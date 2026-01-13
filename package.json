@@ -12,9 +12,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bip32": "^4.0.0",
     "bip39": "^3.1.0",
+    "bitcoinjs-lib": "^7.0.1",
     "ejs": "^3.1.9",
     "express": "^4.21.2",
+    "tiny-secp256k1": "^2.2.4",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {

@@ -7,12 +7,48 @@
     <h1>Hello world</h1>
     <p id="mnemonic-p"><%= mnemonic %></p>
     <button id="generate-btn">Generate New Mnemonic</button>
+    <button id="wallet-btn">Generate Wallet</button>
+    <div id="wallet-info"></div>
 
     <script>
         document.getElementById('generate-btn').addEventListener('click', async () => {
             const response = await fetch('/api');
             const data = await response.json();
             document.getElementById('mnemonic-p').textContent = data.mnemonic;
+        });
+
+        document.getElementById('wallet-btn').addEventListener('click', async () => {
+            const mnemonic = document.getElementById('mnemonic-p').textContent;
+            const response = await fetch('/api/wallet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ mnemonic: mnemonic }),
+            });
+            const wallet = await response.json();
+            if (wallet.error) {
+                document.getElementById('wallet-info').innerHTML = `<p>Error: ${wallet.error}</p>`;
+            } else {
+                let html = `<h2>Wallet Information</h2>`;
+                html += `<p><strong>Mnemonic:</strong> ${wallet.mnemonic}</p>`;
+                html += `<p><strong>Seed:</strong> ${wallet.seed}</p>`;
+                html += `<p><strong>Network:</strong> ${wallet.network}</p>`;
+                html += `<p><strong>Root:</strong> ${wallet.root}</p>`;
+                html += `<h3>Child Keys:</h3>`;
+                html += `<table>`;
+                html += `<tr><th>Path</th><th>Address</th><th>Private Key</th><th>Public Key</th></tr>`;
+                wallet.childKeys.forEach(key => {
+                    html += `<tr>`;
+                    html += `<td>${key.path}</td>`;
+                    html += `<td>${key.address}</td>`;
+                    html += `<td>${key.privateKey}</td>`;
+                    html += `<td>${key.publicKey}</td>`;
+                    html += `</tr>`;
+                });
+                html += `</table>`;
+                document.getElementById('wallet-info').innerHTML = html;
+            }
         });
     </script>
 </body>
