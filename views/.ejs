@@ -13,10 +13,10 @@
         
         <hr>
 
-        <h3>2. Name Your Wallet & Save Wallet</h3>
+        <h3>2. Name Your Wallet & Save Mnemonic as a JSON file</h3>
         <input type="text" id="wallet-name-input" placeholder="Enter wallet name (e.g., 'My First Wallet')">
         <br>
-        <button id="save-btn">Save Wallet</button>
+        <button id="save-btn">Save Mnemonic (.json)</button>
 
         <hr>
 
@@ -67,9 +67,8 @@
         document.getElementById('save-btn').addEventListener('click', () => {
             const mnemonic = document.getElementById('mnemonic-p').textContent;
             const walletName = document.getElementById('wallet-name-input').value.trim();
-            const network = document.getElementById('network-select').value;
             const filename = walletName ? `${walletName.replace(/\s+/g, '_')}.json` : 'mnemonic.json';
-            const mnemonicJSON = JSON.stringify({ name: walletName, mnemonic: mnemonic, network: network }, null, 2);
+            const mnemonicJSON = JSON.stringify({ mnemonic: mnemonic }, null, 2);
             downloadFile(mnemonicJSON, filename, 'application/json');
         });
 
@@ -91,7 +90,7 @@
                     const wallet = JSON.parse(content);
                     mnemonic = wallet.mnemonic;
                     walletName = wallet.name || '';
-                    network = wallet.network || 'testnet'; // Get network from wallet file, default to testnet
+                    network = wallet.network || 'testnet'; // Get network from wallet file
                     document.getElementById('network-select').value = network; // Set dropdown to loaded network
                 } catch (e) {
                     mnemonic = content.trim();

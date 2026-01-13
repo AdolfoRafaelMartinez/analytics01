@@ -27,12 +27,12 @@ app.get('/api', (req, res) => {
 });
 
 app.post('/api/wallet', (req, res) => {
-  const { mnemonic, name } = req.body;
+  const { mnemonic, name, network } = req.body;
   if (!mnemonic) {
     return res.status(400).json({ error: 'Mnemonic is required' });
   }
   try {
-    const wallet = create_hd_wallet_bitcoin(mnemonic, 'bitcoin-mainnet', name);
+    const wallet = create_hd_wallet_bitcoin(mnemonic, network || 'testnet', name);
     res.json(wallet);
   } catch (error) {
       console.error(error);
@@ -49,10 +49,10 @@ function create_hd_wallet_bitcoin(mnemonic, network_name, name) {
     let network;
     let path_prefix;
 
-    if (network_name === 'bitcoin-mainnet') {
+    if (network_name === 'mainnet') {
         network = bitcoin.networks.bitcoin;
         path_prefix = "m/49'/0'/0'/0";
-    } else {
+    } else { // 'testnet'
         network = bitcoin.networks.testnet;
         path_prefix = "m/49'/1'/0'/0";
     }
