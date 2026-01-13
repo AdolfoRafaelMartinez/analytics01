@@ -8,6 +8,7 @@
     <p id="mnemonic-p"><%= mnemonic %></p>
     <button id="generate-btn">Generate New Mnemonic</button>
     <button id="wallet-btn">Generate Wallet</button>
+    <button id="save-btn">Save Mnemonic</button>
     <div id="wallet-info"></div>
 
     <script>
@@ -49,6 +50,16 @@
                 html += `</table>`;
                 document.getElementById('wallet-info').innerHTML = html;
             }
+        });
+
+        document.getElementById('save-btn').addEventListener('click', () => {
+            const mnemonic = document.getElementById('mnemonic-p').textContent;
+            const blob = new Blob([mnemonic], { type: 'text/plain' });
+            const anchor = document.createElement('a');
+            anchor.download = 'mnemonic.txt';
+            anchor.href = window.URL.createObjectURL(blob);
+            anchor.click();
+            window.URL.revokeObjectURL(anchor.href);
         });
     </script>
 </body>
