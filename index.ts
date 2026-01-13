@@ -10,8 +10,10 @@ const app = express();
 const port = parseInt(process.env.PORT) || process.argv[3] || 8080;
 
 app.use(express.json()); // Used to parse JSON bodies
-app.use(express.static(path.join(__dirname, 'public')))
-  .set('views', path.join(__dirname, 'views'))
+
+// Correctly serve static files from 'public' and set 'views' directory for TS projects
+app.use(express.static(path.join(__dirname, '..', 'public')))
+  .set('views', path.join(__dirname, '..', 'views'))
   .set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
@@ -25,12 +27,12 @@ app.get('/api', (req, res) => {
 });
 
 app.post('/api/wallet', (req, res) => {
-  const { mnemonic } = req.body;
+  const { mnemonic, name } = req.body;
   if (!mnemonic) {
     return res.status(400).json({ error: 'Mnemonic is required' });
   }
   try {
-    const wallet = create_hd_wallet_bitcoin(mnemonic, 'bitcoin-mainnet');
+    const wallet = create_hd_wallet_bitcoin(mnemonic, 'bitcoin-mainnet', name);
     res.json(wallet);
   } catch (error) {
       console.error(error);
@@ -42,7 +44,7 @@ app.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);
 });
 
-function create_hd_wallet_bitcoin(mnemonic, network_name) {
+function create_hd_wallet_bitcoin(mnemonic, network_name, name) {
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     let network;
     let path_prefix;
@@ -74,6 +76,7 @@ function create_hd_wallet_bitcoin(mnemonic, network_name) {
     }
 
     return {
+        name: name,
         mnemonic: mnemonic,
         seed: seed.toString('hex'),
         network: network_name,

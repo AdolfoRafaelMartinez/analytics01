@@ -4,52 +4,96 @@
     <link rel="stylesheet" type="text/css" href="/styles.css" />
 </head>
 <body>
-    <h1>Hello world</h1>
-    <p id="mnemonic-p"><%= mnemonic %></p>
-    <button id="generate-btn">Generate New Mnemonic</button>
-    <button id="wallet-btn">Generate Wallet</button>
-    <button id="save-btn">Save Mnemonic</button>
+    <h1>Bitcoin Wallet Generator</h1>
+    
+    <div class="creation-container">
+        <h3>1. Generate Mnemonic Phrase</h3>
+        <p id="mnemonic-p"><%= mnemonic %></p>
+        <button id="generate-btn">Generate New Mnemonic</button>
+        
+        <hr>
+
+        <h3>2. Name Your Wallet & Save Mnemonic as a JSON file</h3>
+        <input type="text" id="wallet-name-input" placeholder="Enter wallet name (e.g., 'My First Wallet')">
+        <br>
+        <button id="save-btn">Save Mnemonic (.json)</button>
+
+        <hr>
+
+        <h3>3. Generate Wallet</h3>
+        <button id="wallet-btn">Generate Wallet</button>
+    </div>
+
     <hr>
-    <input type="file" id="load-input" accept=".txt">
-    <button id="load-btn">Load Mnemonic & Generate Wallet</button>
+
+    <div class="load-container">
+        <h3>Or Load Existing Wallet</h3>
+        <input type="file" id="load-input" accept=".txt,.json">
+        <button id="load-btn">Load Wallet from File</button>
+    </div>
+
+    <hr>
+
     <div id="wallet-info"></div>
 
     <script>
+        let currentWallet = null;
+
+        // --- Event Listeners ---
+
         document.getElementById('generate-btn').addEventListener('click', async () => {
             const response = await fetch('/api');
             const data = await response.json();
             document.getElementById('mnemonic-p').textContent = data.mnemonic;
-            document.getElementById('wallet-info').innerHTML = ''; // Clear previous wallet info
+            document.getElementById('wallet-info').innerHTML = '';
+            document.getElementById('wallet-name-input').value = '';
+            currentWallet = null;
         });
 
         document.getElementById('wallet-btn').addEventListener('click', async () => {
             const mnemonic = document.getElementById('mnemonic-p').textContent;
-            await generateWallet(mnemonic);
+            const name = document.getElementById('wallet-name-input').value;
+            await generateWallet(mnemonic, name);
         });
 
         document.getElementById('save-btn').addEventListener('click', () => {
             const mnemonic = document.getElementById('mnemonic-p').textContent;
-            const blob = new Blob([mnemonic], { type: 'text/plain' });
-            const anchor = document.createElement('a');
-            anchor.download = 'mnemonic.txt';
-            anchor.href = window.URL.createObjectURL(blob);
-            anchor.click();
-            window.URL.revokeObjectURL(anchor.href);
+            const walletName = document.getElementById('wallet-name-input').value.trim();
+            const filename = walletName ? `${walletName.replace(/\s+/g, '_')}.json` : 'mnemonic.json';
+            const mnemonicJSON = JSON.stringify({ mnemonic: mnemonic }, null, 2);
+            downloadFile(mnemonicJSON, filename, 'application/json');
         });
 
         document.getElementById('load-btn').addEventListener('click', () => {
             const input = document.getElementById('load-input');
             if (input.files.length === 0) {
-                alert("Please select a mnemonic file!");
+                alert("Please select a file!");
                 return;
             }
             const file = input.files[0];
             const reader = new FileReader();
 
             reader.onload = async (event) => {
-                const mnemonic = event.target.result.trim();
+                const content = event.target.result;
+                let mnemonic;
+                let walletName = '';
+                try {
+                    const wallet = JSON.parse(content);
+                    mnemonic = wallet.mnemonic;
+                    walletName = wallet.name || '';
+                } catch (e) {
+                    mnemonic = content.trim();
+                }
+
+                if (!mnemonic) {
+                    alert("Could not find a mnemonic in the file.");
+                    return;
+                }
+
                 document.getElementById('mnemonic-p').textContent = mnemonic;
-                await generateWallet(mnemonic);
+                document.getElementById('wallet-name-input').value = walletName;
+                await generateWallet(mnemonic, walletName);
+                input.value = ''; // Reset file input
             };
 
             reader.onerror = (event) => {
@@ -59,39 +103,81 @@
             reader.readAsText(file);
         });
 
-        async function generateWallet(mnemonic) {
+        // --- Core Functions ---
+
+        async function generateWallet(mnemonic, name) {
             const response = await fetch('/api/wallet', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ mnemonic: mnemonic }),
+                body: JSON.stringify({ mnemonic, name }),
             });
             const wallet = await response.json();
             const walletInfoDiv = document.getElementById('wallet-info');
+
             if (wallet.error) {
-                walletInfoDiv.innerHTML = `<p>Error: ${wallet.error}</p>`;
+                walletInfoDiv.innerHTML = `<p class="error">Error: ${wallet.error}</p>`;
+                currentWallet = null;
             } else {
-                let html = `<h2>Wallet Information</h2>`;
-                html += `<p><strong>Mnemonic:</strong> ${wallet.mnemonic}</p>`;
-                html += `<p><strong>Seed:</strong> ${wallet.seed}</p>`;
-                html += `<p><strong>Network:</strong> ${wallet.network}</p>`;
-                html += `<p><strong>Root:</strong> ${wallet.root}</p>`;
-                html += `<h3>Child Keys:</h3>`;
-                html += `<table>`;
-                html += `<tr><th>Path</th><th>Address</th><th>Private Key</th><th>Public Key</th></tr>`;
-                wallet.childKeys.forEach(key => {
-                    html += `<tr>`;
-                    html += `<td>${key.path}</td>`;
-                    html += `<td>${key.address}</td>`;
-                    html += `<td>${key.privateKey}</td>`;
-                    html += `<td>${key.publicKey}</td>`;
-                    html += `</tr>`;
-                });
-                html += `</table>`;
-                walletInfoDiv.innerHTML = html;
+                currentWallet = wallet;
+                displayWallet(wallet, walletInfoDiv);
             }
         }
+
+        function displayWallet(wallet, container) {
+            const saveWalletBtnId = 'save-wallet-btn-dynamic';
+            const filenameInputId = 'save-filename-input';
+            const suggestedFilename = wallet.name ? `${wallet.name.replace(/\s+/g, '_')}.json` : 'wallet.json';
+
+            let html = `<h2>Wallet Information</h2>`;
+            html += `<p><strong>Name:</strong> ${wallet.name || 'N/A'}</p>`;
+            html += `<p><strong>Mnemonic:</strong> ${wallet.mnemonic}</p>`;
+            html += `<p><strong>Seed:</strong> ${wallet.seed}</p>`;
+            html += `<p><strong>Network:</strong> ${wallet.network}</p>`;
+            html += `<p><strong>Root:</strong> ${wallet.root}</p>`;
+            
+            html += `<div class="save-wallet-container">`;
+            html += `   <h3>Save Wallet</h3>`;
+            html += `   <input type="text" id="${filenameInputId}" value="${suggestedFilename}">`;
+            html += `   <button id="${saveWalletBtnId}">Save (.json)</button>`;
+            html += `</div>`;
+
+            html += `<h3>Child Keys:</h3>`;
+            html += `<table>`;
+            html += `<tr><th>Path</th><th>Address</th><th>Private Key</th><th>Public Key</th></tr>`;
+            wallet.childKeys.forEach(key => {
+                html += `<tr>`;
+                html += `<td>${key.path}</td>`;
+                html += `<td>${key.address}</td>`;
+                html += `<td class="sensitive">${key.privateKey}</td>`;
+                html += `<td>${key.publicKey}</td>`;
+                html += `</tr>`;
+            });
+            html += `</table>`;
+            container.innerHTML = html;
+
+            document.getElementById(saveWalletBtnId).addEventListener('click', () => {
+                if (!currentWallet) return;
+                const filename = document.getElementById(filenameInputId).value;
+                if (filename && filename.trim()) {
+                    const walletString = JSON.stringify(currentWallet, null, 2);
+                    downloadFile(walletString, filename.trim(), 'application/json');
+                } else {
+                    alert("Please enter a valid filename.");
+                }
+            });
+        }
+
+        function downloadFile(content, fileName, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const anchor = document.createElement('a');
+            anchor.download = fileName;
+            anchor.href = window.URL.createObjectURL(blob);
+            anchor.click();
+            window.URL.revokeObjectURL(anchor.href);
+        }
+
     </script>
 </body>
 </html>

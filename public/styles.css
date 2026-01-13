@@ -1,1 +1,152 @@
-/** Add styles here */
+/* Basic Reset & Body Style */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f4f7f9;
+    color: #333;
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+}
+
+h2 {
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5rem;
+    margin-top: 2rem;
+}
+
+h3 {
+    color: #34495e;
+    margin-top: 1.5rem;
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background-color: #e0e0e0;
+    width: 100%;
+    margin: 2rem 0;
+}
+
+/* Layout Containers */
+.creation-container,
+.load-container,
+#wallet-info {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 1rem;
+}
+
+/* Mnemonic & Inputs */
+#mnemonic-p {
+    background-color: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    padding: 1rem;
+    border-radius: 4px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    word-wrap: break-word;
+}
+
+input[type="text"],
+input[type="file"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin: 0.5rem 0;
+}
+
+/* Buttons */
+button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 5px;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+#generate-btn {
+    background-color: #2ecc71;
+}
+#generate-btn:hover {
+    background-color: #27ae60;
+}
+
+#load-btn {
+    background-color: #f39c12;
+}
+#load-btn:hover {
+    background-color: #e67e22;
+}
+
+/* Wallet Info Table */
+#wallet-info table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    overflow-x: auto;
+    display: block;
+}
+
+#wallet-info th,
+#wallet-info td {
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+#wallet-info th {
+    background-color: #ecf0f1;
+    color: #34495e;
+    font-weight: 600;
+}
+
+#wallet-info tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Specific containers */
+.save-wallet-container {
+    margin-top: 1.5rem;
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Utility classes */
+.sensitive {
+    color: #c0392b;
+    font-style: italic;
+}
+
+.error {
+    color: #e74c3c;
+    font-weight: bold;
+}
