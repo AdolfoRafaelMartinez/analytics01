@@ -9,46 +9,42 @@
     <div class="creation-container">
         <h3>1. Mnemonic</h3>
         <p id="mnemonic-p"><%= mnemonic %></p>
-        <div class="button-container">
-            <button id="generate-btn">Generate</button>
-        </div>
+        <button id="generate-btn">Generate</button>
         
         <hr>
 
-        <h3>2. Wallet & Network</h3>
-        <div class="wallet-and-network-container">
-            <div class="input-group">
-                <label for="wallet-name-input">Name:</label>
-                <input type="text" id="wallet-name-input" placeholder="Enter wallet name (e.g., 'My First Wallet')">
-            </div>
-            <div class="input-group">
-                <label for="network-select">Choose: </label>
-                <select id="network-select">
-                    <option value="mainnet">Mainnet</option>
-                    <option value="testnet" selected>Testnet</option>
-                </select>
-            </div>
-        </div>
-        <div class="button-container">
-            <button id="save-btn">Save</button>
-        </div>
+        <h3>2. Name Your Wallet & Save</h3>
+        <input type="text" id="wallet-name-input" placeholder="Enter wallet name (e.g., 'My First Wallet')">
+        <br>
+        <button id="save-btn">Save</button>
 
         <hr>
 
         <div class="generate-load-container">
             <div class="generate-wallet-section">
-                <h3>Hierarchy</h3>
-                <button id="wallet-btn">Generate</button>
+                <h3>3. Choose a network</h3>
+                <div class="input-group">
+                    <label for="network-select">Network: </label>
+                    <select id="network-select">
+                        <option value="mainnet">Mainnet</option>
+                        <option value="testnet" selected>Testnet</option>
+                    </select>
+                </div>
             </div>
 
             <div class="vertical-separator"></div>
 
             <div class="load-wallet-section">
-                <h3>Existing Wallet</h3>
+                <h3>Or Load Existing Wallet</h3>
                 <input type="file" id="load-input" accept=".txt,.json">
-                <button id="load-btn">Load</button>
+                <button id="load-btn">Load Wallet from File</button>
             </div>
         </div>
+
+        <hr>
+
+        <h3>4. Generate Wallet</h3>
+        <button id="wallet-btn">Generate</button>
     </div>
 
     <hr>
@@ -84,14 +80,12 @@
         });
 
         document.getElementById('save-btn').addEventListener('click', () => {
-            if (!currentWallet) {
-                alert("Please generate a wallet first!");
-                return;
-            }
+            const mnemonic = document.getElementById('mnemonic-p').textContent;
             const walletName = document.getElementById('wallet-name-input').value.trim();
-            const filename = walletName ? `${walletName.replace(/\s+/g, '_')}.json` : 'wallet.json';
-            const walletString = JSON.stringify(currentWallet, null, 2);
-            downloadFile(walletString, filename, 'application/json');
+            const network = document.getElementById('network-select').value;
+            const filename = walletName ? `${walletName.replace(/\s+/g, '_')}.json` : 'mnemonic.json';
+            const mnemonicJSON = JSON.stringify({ name: walletName, mnemonic: mnemonic, network: network }, null, 2);
+            downloadFile(mnemonicJSON, filename, 'application/json');
         });
 
         document.getElementById('load-btn').addEventListener('click', () => {
@@ -160,12 +154,23 @@
         }
 
         function displayWallet(wallet, container) {
+            const saveWalletBtnId = 'save-wallet-btn-dynamic';
+            const filenameInputId = 'save-filename-input';
+            const suggestedFilename = wallet.name ? `${wallet.name.replace(/\s+/g, '_')}.json` : 'wallet.json';
+
             let html = `<h2>Wallet Information</h2>`;
             html += `<p><strong>Name:</strong> ${wallet.name || 'N/A'}</p>`;
             html += `<p><strong>Mnemonic:</strong> ${wallet.mnemonic}</p>`;
             html += `<p><strong>Seed:</strong> ${wallet.seed}</p>`;
             html += `<p><strong>Network:</strong> ${wallet.network}</p>`;
             html += `<p><strong>Root:</strong> ${wallet.root}</p>`;
+            
+            html += `<div class="save-wallet-container">`;
+            html += `   <h3>Save Wallet</h3>`;
+            html += `   <input type="text" id="${filenameInputId}" value="${suggestedFilename}">`;
+            html += `   <button id="${saveWalletBtnId}">Save (.json)</button>`;
+            html += `</div>`;
+
             html += `<h3>Child Keys:</h3>`;
             html += `<table>`;
             html += `<tr><th>Path</th><th>Address</th><th>Private Key</th><th>Public Key</th></tr>`;
@@ -179,6 +184,17 @@
             });
             html += `</table>`;
             container.innerHTML = html;
+
+            document.getElementById(saveWalletBtnId).addEventListener('click', () => {
+                if (!currentWallet) return;
+                const filename = document.getElementById(filenameInputId).value;
+                if (filename && filename.trim()) {
+                    const walletString = JSON.stringify(currentWallet, null, 2);
+                    downloadFile(walletString, filename.trim(), 'application/json');
+                } else {
+                    alert("Please enter a valid filename.");
+                }
+            });
         }
 
         function downloadFile(content, fileName, contentType) {
