@@ -9,6 +9,9 @@
     <button id="generate-btn">Generate New Mnemonic</button>
     <button id="wallet-btn">Generate Wallet</button>
     <button id="save-btn">Save Mnemonic</button>
+    <hr>
+    <input type="file" id="load-input" accept=".txt">
+    <button id="load-btn">Load Mnemonic & Generate Wallet</button>
     <div id="wallet-info"></div>
 
     <script>
@@ -16,10 +19,47 @@
             const response = await fetch('/api');
             const data = await response.json();
             document.getElementById('mnemonic-p').textContent = data.mnemonic;
+            document.getElementById('wallet-info').innerHTML = ''; // Clear previous wallet info
         });
 
         document.getElementById('wallet-btn').addEventListener('click', async () => {
             const mnemonic = document.getElementById('mnemonic-p').textContent;
+            await generateWallet(mnemonic);
+        });
+
+        document.getElementById('save-btn').addEventListener('click', () => {
+            const mnemonic = document.getElementById('mnemonic-p').textContent;
+            const blob = new Blob([mnemonic], { type: 'text/plain' });
+            const anchor = document.createElement('a');
+            anchor.download = 'mnemonic.txt';
+            anchor.href = window.URL.createObjectURL(blob);
+            anchor.click();
+            window.URL.revokeObjectURL(anchor.href);
+        });
+
+        document.getElementById('load-btn').addEventListener('click', () => {
+            const input = document.getElementById('load-input');
+            if (input.files.length === 0) {
+                alert("Please select a mnemonic file!");
+                return;
+            }
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            reader.onload = async (event) => {
+                const mnemonic = event.target.result.trim();
+                document.getElementById('mnemonic-p').textContent = mnemonic;
+                await generateWallet(mnemonic);
+            };
+
+            reader.onerror = (event) => {
+                alert("Error reading file: " + event.target.error.name);
+            };
+
+            reader.readAsText(file);
+        });
+
+        async function generateWallet(mnemonic) {
             const response = await fetch('/api/wallet', {
                 method: 'POST',
                 headers: {
@@ -28,8 +68,9 @@
                 body: JSON.stringify({ mnemonic: mnemonic }),
             });
             const wallet = await response.json();
+            const walletInfoDiv = document.getElementById('wallet-info');
             if (wallet.error) {
-                document.getElementById('wallet-info').innerHTML = `<p>Error: ${wallet.error}</p>`;
+                walletInfoDiv.innerHTML = `<p>Error: ${wallet.error}</p>`;
             } else {
                 let html = `<h2>Wallet Information</h2>`;
                 html += `<p><strong>Mnemonic:</strong> ${wallet.mnemonic}</p>`;
@@ -48,19 +89,9 @@
                     html += `</tr>`;
                 });
                 html += `</table>`;
-                document.getElementById('wallet-info').innerHTML = html;
+                walletInfoDiv.innerHTML = html;
             }
-        });
-
-        document.getElementById('save-btn').addEventListener('click', () => {
-            const mnemonic = document.getElementById('mnemonic-p').textContent;
-            const blob = new Blob([mnemonic], { type: 'text/plain' });
-            const anchor = document.createElement('a');
-            anchor.download = 'mnemonic.txt';
-            anchor.href = window.URL.createObjectURL(blob);
-            anchor.click();
-            window.URL.revokeObjectURL(anchor.href);
-        });
+        }
     </script>
 </body>
 </html>
