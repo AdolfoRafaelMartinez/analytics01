@@ -5,6 +5,15 @@
 </head>
 <body>
     <h1>Hello world</h1>
-    <p><%= mnemonic %></p>
+    <p id="mnemonic-p"><%= mnemonic %></p>
+    <button id="generate-btn">Generate New Mnemonic</button>
+
+    <script>
+        document.getElementById('generate-btn').addEventListener('click', async () => {
+            const response = await fetch('/api');
+            const data = await response.json();
+            document.getElementById('mnemonic-p').textContent = data.mnemonic;
+        });
+    </script>
 </body>
 </html>
