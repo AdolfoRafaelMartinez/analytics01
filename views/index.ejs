@@ -41,7 +41,6 @@
         <div class="load-wallet-section">
             <h3>Or Load an Existing Wallet</h3>
             <input type="file" id="load-input" accept=".txt,.json">
-            <button id="load-btn">Load</button>
         </div>
     </div>
 
@@ -95,7 +94,7 @@
             downloadFile(walletString, filename, 'application/json');
         });
 
-        document.getElementById('load-btn').addEventListener('click', () => {
+        document.getElementById('load-input').addEventListener('change', () => {
             const input = document.getElementById('load-input');
             if (input.files.length === 0) {
                 alert("Please select a file!");
@@ -161,14 +160,23 @@
         }
 
         function displayWallet(wallet, container) {
+            const showPrivateKeysCheckboxId = 'show-private-keys-checkbox';
+            const keysTableId = 'keys-table';
+
             let html = `<h2>Wallet Information</h2>`;
             html += `<p><strong>Name:</strong> ${wallet.name || 'N/A'}</p>`;
             html += `<p><strong>Mnemonic:</strong> ${wallet.mnemonic}</p>`;
             html += `<p><strong>Seed:</strong> ${wallet.seed}</p>`;
             html += `<p><strong>Network:</strong> ${wallet.network}</p>`;
             html += `<p><strong>Root:</strong> ${wallet.root}</p>`;
+            
             html += `<h3>Child Keys:</h3>`;
-            html += `<table>`;
+            html += `<div class="input-group">`;
+            html += `   <input type="checkbox" id="${showPrivateKeysCheckboxId}">`;
+            html += `   <label for="${showPrivateKeysCheckboxId}">Show Private Keys</label>`;
+            html += `</div>`;
+
+            html += `<table id="${keysTableId}" class="private-key-hidden">`;
             html += `<tr><th>Path</th><th>Address</th><th>Private Key</th><th>Public Key</th></tr>`;
             wallet.childKeys.forEach(key => {
                 html += `<tr>`;
@@ -180,6 +188,17 @@
             });
             html += `</table>`;
             container.innerHTML = html;
+
+            document.getElementById(showPrivateKeysCheckboxId).addEventListener('change', (event) => {
+                const table = document.getElementById(keysTableId);
+                if (event.target.checked) {
+                    table.classList.remove('private-key-hidden');
+                    table.classList.add('private-key-shown');
+                } else {
+                    table.classList.remove('private-key-shown');
+                    table.classList.add('private-key-hidden');
+                }
+            });
         }
 
         function downloadFile(content, fileName, contentType) {

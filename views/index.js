@@ -155,6 +155,8 @@
         function displayWallet(wallet, container) {
             const saveWalletBtnId = 'save-wallet-btn-dynamic';
             const filenameInputId = 'save-filename-input';
+            const showPrivateKeysCheckboxId = 'show-private-keys-checkbox';
+            const keysTableId = 'keys-table';
             const suggestedFilename = wallet.name ? `${wallet.name.replace(/\s+/g, '_')}.json` : 'wallet.json';
 
             let html = `<h2>Wallet Information</h2>`;
@@ -171,7 +173,12 @@
             html += `</div>`;
 
             html += `<h3>Child Keys:</h3>`;
-            html += `<table>`;
+            html += `<div class="input-group">`;
+            html += `   <input type="checkbox" id="${showPrivateKeysCheckboxId}">`;
+            html += `   <label for="${showPrivateKeysCheckboxId}">Show Private Keys</label>`;
+            html += `</div>`;
+
+            html += `<table id="${keysTableId}" class="private-key-hidden">`;
             html += `<tr><th>Path</th><th>Address</th><th>Private Key</th><th>Public Key</th></tr>`;
             wallet.childKeys.forEach(key => {
                 html += `<tr>`;
@@ -192,6 +199,17 @@
                     downloadFile(walletString, filename.trim(), 'application/json');
                 } else {
                     alert("Please enter a valid filename.");
+                }
+            });
+
+            document.getElementById(showPrivateKeysCheckboxId).addEventListener('change', (event) => {
+                const table = document.getElementById(keysTableId);
+                if (event.target.checked) {
+                    table.classList.remove('private-key-hidden');
+                    table.classList.add('private-key-shown');
+                } else {
+                    table.classList.remove('private-key-shown');
+                    table.classList.add('private-key-hidden');
                 }
             });
         }
