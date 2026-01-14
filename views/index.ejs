@@ -160,7 +160,6 @@
         }
 
         function displayWallet(wallet, container) {
-            const showPrivateKeysCheckboxId = 'show-private-keys-checkbox';
             const keysTableId = 'keys-table';
 
             let html = `<h2>Wallet Information</h2>`;
@@ -171,35 +170,45 @@
             html += `<p><strong>Root:</strong> ${wallet.root}</p>`;
             
             html += `<h3>Child Keys:</h3>`;
-            html += `<div class="input-group">`;
-            html += `   <input type="checkbox" id="${showPrivateKeysCheckboxId}">`;
-            html += `   <label for="${showPrivateKeysCheckboxId}">Show Private Keys</label>`;
-            html += `</div>`;
+            html += `<p>Click on a private key to reveal/hide it.</p>`;
 
-            html += `<table id="${keysTableId}" class="private-key-hidden">`;
+            html += `<table id="${keysTableId}">`;
             html += `<tr><th>Path</th><th>Address</th><th>Private Key</th><th>Public Key</th></tr>`;
             wallet.childKeys.forEach(key => {
                 html += `<tr>`;
                 html += `<td>${key.path}</td>`;
                 html += `<td>${key.address}</td>`;
-                html += `<td class="sensitive">${key.privateKey}</td>`;
+                html += `<td class="sensitive" data-private-key="${key.privateKey}" style="cursor: pointer;">hidden</td>`;
                 html += `<td>${key.publicKey}</td>`;
                 html += `</tr>`;
             });
             html += `</table>`;
             container.innerHTML = html;
 
-            document.getElementById(showPrivateKeysCheckboxId).addEventListener('change', (event) => {
-                const table = document.getElementById(keysTableId);
-                if (event.target.checked) {
-                    table.classList.remove('private-key-hidden');
-                    table.classList.add('private-key-shown');
-                } else {
-                    table.classList.remove('private-key-shown');
-                    table.classList.add('private-key-hidden');
-                }
+            const privateKeyCells = container.querySelectorAll('.sensitive');
+            privateKeyCells.forEach(clickedCell => {
+                clickedCell.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const isRevealed = clickedCell.textContent !== 'hidden';
+                    
+                    // Hide all keys first
+                    privateKeyCells.forEach(cell => {
+                        cell.textContent = 'hidden';
+                    });
+
+                    if (!isRevealed) {
+                        clickedCell.textContent = clickedCell.getAttribute('data-private-key');
+                    }
+                });
             });
         }
+
+        // Global click listener to hide keys when clicking outside
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.sensitive').forEach(cell => {
+                cell.textContent = 'hidden';
+            });
+        });
 
         function downloadFile(content, fileName, contentType) {
             const blob = new Blob([content], { type: contentType });
