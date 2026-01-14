@@ -84,7 +84,14 @@
             }
             const walletName = document.getElementById('wallet-name-input').value.trim();
             const filename = walletName ? `${walletName.replace(/\s+/g, '_')}.json` : 'wallet.json';
-            const walletString = JSON.stringify(currentWallet, null, 2);
+            
+            const walletToSave = {
+                network: currentWallet.network,
+                name: currentWallet.name,
+                mnemonic: currentWallet.mnemonic
+            };
+
+            const walletString = JSON.stringify(walletToSave, null, 2);
             downloadFile(walletString, filename, 'application/json');
         });
 
