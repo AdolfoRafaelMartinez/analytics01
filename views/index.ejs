@@ -7,7 +7,7 @@
     <h1>Bitcoin Wallet Generator</h1>
     
     <div class="creation-container">
-        <h3>1. Choose Block Chain</h3>
+        <h3>1. Choose a Block Chain</h3>
         <div class="wallet-and-network-container">
             <div class="input-group">
                 <label for="network-select">Chain: </label>
@@ -16,13 +16,15 @@
                     <option value="testnet" selected>Testnet</option>
                 </select>
             </div>
+        <hr>
+        <h3>2. Choose a Wallet Name</h3>
             <div class="input-group">
-                <label for="wallet-name-input">Wallet Name:</label>
+                <label for="wallet-name-input">Name:</label>
                 <input type="text" id="wallet-name-input" placeholder="Enter wallet name (e.g., 'My First Wallet')">
             </div>
         </div>
         <hr>
-        <h3>2. Choose Mnemonic</h3>
+        <h3>3. Choose a Mnemonic</h3>
         <p id="mnemonic-p"><%= mnemonic %></p>
         <div class="button-container">
             <button id="generate-btn">Spin Again</button>
@@ -30,14 +32,14 @@
         <hr>
         <div class="generate-load-container">
             <div class="generate-wallet-section">
-                <h3>3. Generate & Save</h3>
-                <button id="wallet-btn">Generate</button>
+                <h3>3. Save & Generate Keys</h3>
+                <button id="wallet-btn">Save</button>
             </div>
             <div class="vertical-separator"></div>
         </div>
         <hr>
         <div class="load-wallet-section">
-            <h3>Or Existing Wallet</h3>
+            <h3>Or Load an Existing Wallet</h3>
             <input type="file" id="load-input" accept=".txt,.json">
             <button id="load-btn">Load</button>
         </div>
