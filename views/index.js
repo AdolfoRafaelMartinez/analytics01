@@ -35,9 +35,8 @@
             <div class="vertical-separator"></div>
 
             <div class="load-wallet-section">
-                <h3>Or Load Existing Wallet</h3>
+                <h3>Or Load Existing Wallet from File</h3>
                 <input type="file" id="load-input" accept=".txt,.json">
-                <button id="load-btn">Load Wallet from File</button>
             </div>
         </div>
 
@@ -88,7 +87,7 @@
             downloadFile(mnemonicJSON, filename, 'application/json');
         });
 
-        document.getElementById('load-btn').addEventListener('click', () => {
+        document.getElementById('load-input').addEventListener('change', () => {
             const input = document.getElementById('load-input');
             if (input.files.length === 0) {
                 alert("Please select a file!");

@@ -210,3 +210,10 @@ button:hover {
 .glowing {
     animation: glow 1s ease-in-out;
 }
+
+.private-key-hidden .sensitive {
+    visibility: hidden;
+}
+.private-key-shown .sensitive {
+    visibility: visible;
+}
