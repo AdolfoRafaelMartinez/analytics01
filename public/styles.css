@@ -160,8 +160,7 @@ button:hover {
     width: 100%;
     border-collapse: collapse;
     margin-top: 1rem;
-    overflow-x: auto;
-    display: block;
+    table-layout: fixed; /* Use fixed layout */
 }
 
 #wallet-info th,
@@ -172,13 +171,24 @@ button:hover {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 200px;
+}
+
+/* Set a fixed width on the private key column to prevent resizing */
+#wallet-info th:nth-child(3),
+#wallet-info td:nth-child(3) {
+    width: 250px;
+}
+
+/* Center the text only when the key is hidden */
+#wallet-info td.is-hidden {
+    text-align: center;
 }
 
 #wallet-info th {
     background-color: #ecf0f1;
     color: #34495e;
     font-weight: 600;
+    text-align: center;
 }
 
 #wallet-info tr:nth-child(even) {

@@ -205,7 +205,7 @@
                 html += `<tr>`;
                 html += `<td>${pathString}</td>`;
                 html += `<td>${key.address}</td>`;
-                html += `<td class="sensitive" data-private-key="${key.privateKey}" style="cursor: pointer;">hidden</td>`;
+                html += `<td class="sensitive is-hidden" data-private-key="${key.privateKey}" style="cursor: pointer;">hidden</td>`;
                 html += `<td>${key.publicKey}</td>`;
                 html += `</tr>`;
             });
@@ -221,10 +221,12 @@
                     // Hide all keys first
                     privateKeyCells.forEach(cell => {
                         cell.textContent = 'hidden';
+                        cell.classList.add('is-hidden');
                     });
 
                     if (!isRevealed) {
                         clickedCell.textContent = clickedCell.getAttribute('data-private-key');
+                        clickedCell.classList.remove('is-hidden');
                     }
                 });
             });
@@ -234,6 +236,7 @@
         document.addEventListener('click', () => {
             document.querySelectorAll('.sensitive').forEach(cell => {
                 cell.textContent = 'hidden';
+                cell.classList.add('is-hidden');
             });
         });
 
