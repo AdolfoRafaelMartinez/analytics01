@@ -86,6 +86,16 @@
         });
 
         document.getElementById('wallet-btn').addEventListener('click', async () => {
+            // --- Gnome Animation ---
+            const numGnomes = 5; // Number of gnomes to show
+            for (let i = 0; i < numGnomes; i++) {
+                // Create a delay for each gnome to appear
+                setTimeout(() => {
+                    createDancingGnome();
+                }, i * 500); // Stagger the gnomes by 500ms
+            }
+
+
             const mnemonic = document.getElementById('mnemonic-p').textContent;
             const name = document.getElementById('wallet-name-input').value;
             const network = document.getElementById('network-select').value;
@@ -234,6 +244,21 @@
             anchor.href = window.URL.createObjectURL(blob);
             anchor.click();
             window.URL.revokeObjectURL(anchor.href);
+        }
+
+        function createDancingGnome() {
+            const gnome = document.createElement('div');
+            gnome.className = 'gnome';
+
+            // Set a random starting horizontal position
+            gnome.style.left = `${Math.random() * 20 - 10}vw`; 
+
+            document.body.appendChild(gnome);
+
+            // Remove the gnome after the animation finishes
+            setTimeout(() => {
+                gnome.remove();
+            }, 7000); // Match animation duration
         }
 
     </script>

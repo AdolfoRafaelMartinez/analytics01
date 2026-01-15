@@ -215,3 +215,46 @@ button:hover {
 .private-key-shown .sensitive {
     visibility: visible;
 }
+
+/* Gnomes */
+.gnome {
+    position: fixed;
+    width: 1.6in; /* Maintain aspect ratio */
+    height: 2in; /* two inches tall */
+    background-image: url('/gnome.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 1000;
+    animation-name: dance;
+    animation-duration: 7s;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    bottom: -100px; /* Start below the screen */
+}
+
+@keyframes dance {
+    0% {
+        bottom: -100px;
+        transform: translateX(0vw) rotate(0deg);
+    }
+    20% {
+        bottom: 10vh;
+        transform: translateX(20vw) rotate(15deg);
+    }
+    40% {
+        bottom: 5vh;
+        transform: translateX(40vw) rotate(-15deg);
+    }
+    60% {
+        bottom: 15vh;
+        transform: translateX(60vw) rotate(10deg);
+    }
+    80% {
+        bottom: 10vh;
+        transform: translateX(80vw) rotate(-10deg);
+    }
+    100% {
+        bottom: -150px; /* End off-screen */
+        transform: translateX(100vw) rotate(0deg);
+    }
+}
