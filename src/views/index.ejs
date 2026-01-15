@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -161,6 +162,16 @@
             };
 
             reader.readAsText(file);
+        });
+
+        document.getElementById('network-select').addEventListener('change', () => {
+            document.getElementById('wallet-info').innerHTML = '';
+            currentWallet = null;
+        });
+
+        document.getElementById('wallet-name-input').addEventListener('input', () => {
+            document.getElementById('wallet-info').innerHTML = '';
+            currentWallet = null;
         });
 
         // --- Core Functions ---
