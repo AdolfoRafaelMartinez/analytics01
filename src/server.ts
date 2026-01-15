@@ -1,4 +1,4 @@
-import * as express from "express";
+import express, { Request, Response } from 'express';
 import * as path from "path";
 import * as fs from "fs";
 import * as bip39 from "bip39";
@@ -8,19 +8,19 @@ import * as ecc from 'tiny-secp256k1';
 
 const bip32 = BIP32Factory(ecc);
 const app = express();
-const port = parseInt(process.env.PORT) || process.argv[3] || 8080;
+const port = parseInt(process.env.PORT || process.argv[3] || "8080", 10);
 
 app.use(express.json()); // Used to parse JSON bodies
 
 // Correctly serve static files from 'public' and set 'views' directory for TS projects
 app.use(express.static(path.join(__dirname, '..', 'public'))).set('views', path.join(__dirname, 'views')).set('view engine', 'ejs');
 
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   const mnemonic = bip39.generateMnemonic();
   res.render('index', { mnemonic: mnemonic });
 });
 
-app.get('/cointypes', (req, res) => {
+app.get('/cointypes', (req: Request, res: Response) => {
   const csvPath = path.join(__dirname, '..', 'public', 'coin_types.csv');
   fs.readFile(csvPath, 'utf8', (err, data) => {
     if (err) {
@@ -42,13 +42,13 @@ app.get('/cointypes', (req, res) => {
 });
 
 
-app.get('/api', (req, res) => {
+app.get('/api', (req: Request, res: Response) => {
   const mnemonic = bip39.generateMnemonic();
   res.json({"msg": "Hello world", "mnemonic": mnemonic});
 });
 
-app.post('/api/wallet', (req, res) => {
-  const { mnemonic, name, network } = req.body;
+app.post('/api/wallet', (req: Request, res: Response) => {
+  const { mnemonic, name, network }: { mnemonic: string; name?: string; network?: string } = req.body;
   if (!mnemonic) {
     return res.status(400).json({ error: 'Mnemonic is required' });
   }
@@ -65,7 +65,7 @@ app.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);
 });
 
-function create_hd_wallet_bitcoin(mnemonic, network_name, name) {
+function create_hd_wallet_bitcoin(mnemonic: string, network_name: string, name?: string) {
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     let network;
     let path_prefix;
@@ -99,7 +99,7 @@ function create_hd_wallet_bitcoin(mnemonic, network_name, name) {
                 index: i
             },
             address: address,
-            privateKey: childAccount.privateKey.toString('hex'),
+            privateKey: childAccount.privateKey!.toString('hex'),
             publicKey: childAccount.publicKey.toString('hex')
         });
     }
