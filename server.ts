@@ -13,9 +13,7 @@ const port = parseInt(process.env.PORT) || process.argv[3] || 8080;
 app.use(express.json()); // Used to parse JSON bodies
 
 // Correctly serve static files from 'public' and set 'views' directory for TS projects
-app.use(express.static(path.join(__dirname, '..', 'public')))
-  .set('views', path.join(__dirname, '..', 'views'))
-  .set('view engine', 'ejs');
+app.use(express.static(path.join(__dirname, '..', 'public'))).set('views', path.join(__dirname, 'views')).set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
   const mnemonic = bip39.generateMnemonic();
