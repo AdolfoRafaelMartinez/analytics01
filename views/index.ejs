@@ -54,19 +54,35 @@
         // --- Event Listeners ---
 
         document.getElementById('generate-btn').addEventListener('click', async () => {
-            const response = await fetch('/api');
-            const data = await response.json();
             const mnemonicP = document.getElementById('mnemonic-p');
+
+            // Prevent re-triggering while spinning
+            if (mnemonicP.classList.contains('spinning')) {
+                return;
+            }
+
+            // Start the animation
+            mnemonicP.classList.add('spinning');
+
+            // Fetch the new mnemonic in parallel with the animation
+            const responsePromise = fetch('/api');
+            const timerPromise = new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Wait for both the API call and the animation to finish
+            const [response] = await Promise.all([responsePromise, timerPromise]);
+            
+            const data = await response.json();
+
+            // Update content after animation
             mnemonicP.textContent = data.mnemonic;
+            
+            // Remove the class so it can be re-added on the next click
+            mnemonicP.classList.remove('spinning');
+
+            // Clear old wallet info
             document.getElementById('wallet-info').innerHTML = '';
             document.getElementById('wallet-name-input').value = '';
             currentWallet = null;
-
-            // Add glowing effect
-            mnemonicP.classList.add('glowing');
-            setTimeout(() => {
-                mnemonicP.classList.remove('glowing');
-            }, 1000); // 1 second duration for the glow
         });
 
         document.getElementById('wallet-btn').addEventListener('click', async () => {

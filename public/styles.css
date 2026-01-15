@@ -84,6 +84,7 @@ hr {
     font-size: 1.1rem;
     color: #2c3e50;
     word-wrap: break-word;
+    display: inline-block; /* Necessary for transform to work */
 }
 
 .wallet-and-network-container {
@@ -195,20 +196,17 @@ button:hover {
     font-weight: bold;
 }
 
-@keyframes glow {
-    0% {
-        box-shadow: 0 0 2px #2ecc71;
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
     }
-    50% {
-        box-shadow: 0 0 20px #2ecc71;
-    }
-    100% {
-        box-shadow: 0 0 2px #2ecc71;
+    to {
+        transform: rotate(360deg);
     }
 }
 
-.glowing {
-    animation: glow 1s ease-in-out;
+.spinning {
+    animation: spin 1s linear;
 }
 
 .private-key-hidden .sensitive {
