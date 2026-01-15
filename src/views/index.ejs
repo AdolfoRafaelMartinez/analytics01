@@ -15,6 +15,7 @@
                     <option value="mainnet">Mainnet</option>
                     <option value="testnet" selected>Testnet</option>
                 </select>
+                <a href="/cointypes" style="margin-left: 10px;">Coin Types</a>
             </div>
         <hr>
         <h3>2. Choose a Wallet Name</h3>
@@ -195,6 +196,15 @@
             html += `<p><strong>Root:</strong> ${wallet.root}</p>`;
             
             html += `<h3>Child Keys:</h3>`;
+            html += `<p>The "path" is a standard derivation path used in HD (Hierarchical Deterministic) wallets to generate a tree of keys from a single master seed. The format is <code>m/purpose'/coin_type'/account'/change/index</code>:</p>`
+            html += `<ul>`;
+            html += `<li><b>m</b>: Stands for Master, the root of the key tree.</li>`;
+            html += `<li><b>purpose'</b>: Defines the standard being used (e.g., 49' for P2SH-P2WPKH SegWit addresses). The apostrophe indicates hardened derivation.</li>`;
+            html += `<li><b>coin_type'</b>: Specifies the cryptocurrency (e.g., 0' for Bitcoin Mainnet, 1' for Testnet).</li>`;
+            html += `<li><b>account'</b>: Allows you to organize your wallet into separate logical accounts.</li>`;
+            html += `<li><b>change</b>: Distinguishes between external (receiving) addresses (0) and internal (change) addresses (1).</li>`;
+            html += `<li><b>index</b>: The sequential number of the address being derived.</li>`;
+            html += `</ul>`;
             html += `<p>Click on a private key to reveal/hide it.</p>`;
 
             html += `<table id="${keysTableId}">`;
