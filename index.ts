@@ -59,6 +59,7 @@ function create_hd_wallet_bitcoin(mnemonic, network_name, name) {
 
     const root = bip32.fromSeed(seed, network);
     const childKeys = [];
+    const path_parts = path_prefix.split('/');
 
     for (let i = 0; i < 10; i++) {
         const childAccount = root.derivePath(`${path_prefix}/${i}`);
@@ -68,7 +69,14 @@ function create_hd_wallet_bitcoin(mnemonic, network_name, name) {
         });
 
         childKeys.push({
-            path: `${path_prefix}/${i}`,
+            path: {
+                m: path_parts[0],
+                purpose: path_parts[1],
+                coinType: path_parts[2],
+                account: path_parts[3],
+                change: path_parts[4],
+                index: i
+            },
             address: address,
             privateKey: childAccount.privateKey.toString('hex'),
             publicKey: childAccount.publicKey.toString('hex')

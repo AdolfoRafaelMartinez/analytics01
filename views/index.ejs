@@ -127,7 +127,6 @@
                 document.getElementById('mnemonic-p').textContent = mnemonic;
                 document.getElementById('wallet-name-input').value = walletName;
                 await generateWallet(mnemonic, walletName, network);
-                input.value = ''; // Reset file input
             };
 
             reader.onerror = (event) => {
@@ -175,8 +174,10 @@
             html += `<table id="${keysTableId}">`;
             html += `<tr><th>Path</th><th>Address</th><th>Private Key</th><th>Public Key</th></tr>`;
             wallet.childKeys.forEach(key => {
+                const path = key.path;
+                const pathString = `${path.m}/${path.purpose}/${path.coinType}/${path.account}/${path.change}/${path.index}`;
                 html += `<tr>`;
-                html += `<td>${key.path}</td>`;
+                html += `<td>${pathString}</td>`;
                 html += `<td>${key.address}</td>`;
                 html += `<td class="sensitive" data-private-key="${key.privateKey}" style="cursor: pointer;">hidden</td>`;
                 html += `<td>${key.publicKey}</td>`;
