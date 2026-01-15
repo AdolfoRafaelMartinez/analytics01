@@ -53,6 +53,30 @@
 
         // --- Event Listeners ---
 
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/wallet59.json');
+                if (!response.ok) {
+                    console.error('Could not load default wallet. Status:', response.status);
+                    return;
+                }
+                const wallet = await response.json();
+                const { mnemonic, name, network } = wallet;
+
+                if (!mnemonic) {
+                    console.error("Could not find a mnemonic in the default wallet file.");
+                    return;
+                }
+
+                document.getElementById('mnemonic-p').textContent = mnemonic;
+                document.getElementById('wallet-name-input').value = name || '';
+                document.getElementById('network-select').value = network || 'testnet';
+                await generateWallet(mnemonic, name, network);
+            } catch (error) {
+                console.error('Error loading default wallet:', error);
+            }
+        });
+
         document.getElementById('generate-btn').addEventListener('click', async () => {
             const response = await fetch('/api');
             const data = await response.json();

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Coin Types</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css" />
+</head>
+<body>
+    <h1>Registered Coin Types</h1>
+    <p>The following table lists the registered coin types from SLIP-0044.</p>
+    
+    <table id="cointypes-table">
+        <thead>
+            <tr>
+                <th>BIP-44 Index</th>
+                <th>Symbol</th>
+                <th>Coin</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% cointypes.forEach(coin => { %>
+                <tr>
+                    <td><%= coin.bip44_index %></td>
+                    <td><%= coin.symbol %></td>
+                    <td><%= coin.coin %></td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+
+</body>
+</html>

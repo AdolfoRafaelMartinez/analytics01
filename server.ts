@@ -1,5 +1,6 @@
 import * as express from "express";
 import * as path from "path";
+import * as fs from "fs";
 import * as bip39 from "bip39";
 import * as bitcoin from 'bitcoinjs-lib';
 import { BIP32Factory } from 'bip32';
@@ -20,6 +21,28 @@ app.get('/', (req, res) => {
   const mnemonic = bip39.generateMnemonic();
   res.render('index', { mnemonic: mnemonic });
 });
+
+app.get('/cointypes', (req, res) => {
+  const csvPath = path.join(__dirname, '..', 'public', 'coin_types.csv');
+  fs.readFile(csvPath, 'utf8', (err, data) => {
+    if (err) {
+      console.error("Error reading CSV file:", err);
+      return res.status(500).send("Error reading coin types data.");
+    }
+    const lines = data.trim().split(/\r?\n/);
+    lines.shift(); // remove header
+    const cointypes = lines.map(line => {
+      const values = line.split(',');
+      return {
+        bip44_index: values[0],
+        symbol: values[2],
+        coin: values[3]
+      };
+    });
+    res.render('cointypes', { cointypes });
+  });
+});
+
 
 app.get('/api', (req, res) => {
   const mnemonic = bip39.generateMnemonic();
