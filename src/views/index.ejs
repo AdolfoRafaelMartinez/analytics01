@@ -201,6 +201,7 @@
 
         function displayWallet(wallet, container) {
             const keysTableId = 'keys-table';
+            const mempoolUrl = wallet.network === 'mainnet' ? 'https://mempool.space/address/' : 'https://mempool.space/testnet/address/';
 
             let html = `<h2>Wallet Information</h2>`;
             html += `<p><strong>Name:</strong> ${wallet.name || 'N/A'}</p>`;
@@ -226,9 +227,10 @@
             wallet.childKeys.forEach(key => {
                 const path = key.path;
                 const pathString = `${path.m}/${path.purpose}/${path.coinType}/${path.account}/${path.change}/${path.index}`;
+                const addressUrl = `${mempoolUrl}${key.address}`;
                 html += `<tr>`;
                 html += `<td>${pathString}</td>`;
-                html += `<td>${key.address}</td>`;
+                html += `<td><a href="${addressUrl}" target="_blank">${key.address}</a></td>`;
                 html += `<td class="sensitive is-hidden" data-private-key="${key.privateKey}" style="cursor: pointer;">hidden</td>`;
                 html += `<td>${key.publicKey}</td>`;
                 html += `</tr>`;
