@@ -11,6 +11,10 @@ export const getWalletPage = (req: Request, res: Response) => {
     res.render('index', data);
 };
 
+export const getWifToHexPage = (req: Request, res: Response) => {
+    res.render('wif-to-hex');
+};
+
 export const getMnemonicToPrivateKeyPage = (req: Request, res: Response) => {
     res.render('mnemonic-to-private-key');
 };

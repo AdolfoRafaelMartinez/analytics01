@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { transferBtcP2pkh } from '../controllers/transfer_p2pkh_controller';
-import { getAddressFromPrivateKey } from '../controllers/address_controller';
+import { transferBtcP2pkh } from '../controllers/transfer_p2pkh_controller.js';
+import { getAddressFromPrivateKey } from '../controllers/address_controller.js';
 
 const router = Router();
 

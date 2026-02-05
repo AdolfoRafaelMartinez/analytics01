@@ -3,6 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { ECPairFactory } from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import axios from 'axios';
+import { ListUnspentResponse, Utxo, SendRawTransactionResponse } from '../types/quicknode.js';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -21,14 +22,14 @@ export const transferBtc = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Private key does not match from address' });
         }
 
-        const utxosResponse = await axios.post(QN_BTC_URL, {
+        const utxosResponse = await axios.post<ListUnspentResponse>(QN_BTC_URL, {
             method: 'qn_listunspent',
             params: [fromAddress],
             id: 1,
             jsonrpc: '2.0'
         });
 
-        const utxos = utxosResponse.data.result;
+        const utxos: Utxo[] = utxosResponse.data.result;
 
         if (utxos.length === 0) {
             return res.status(400).json({ error: 'No unspent transaction outputs found' });
@@ -76,7 +77,7 @@ export const transferBtc = async (req: Request, res: Response) => {
 
         const txHex = psbt.extractTransaction().toHex();
 
-        const sendResponse = await axios.post(QN_BTC_URL, {
+        const sendResponse = await axios.post<SendRawTransactionResponse>(QN_BTC_URL, {
             method: 'sendrawtransaction',
             params: [txHex],
             id: 1,

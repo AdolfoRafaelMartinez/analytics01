@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WIF to Hex Converter</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css" />
+</head>
+<body>
+    <div class="container">
+        <a href="/">Home</a>
+        <h1>WIF to Hex Converter</h1>
+        <p>Enter a private key in Wallet Import Format (WIF) to convert it to its hexadecimal representation.</p>
+
+        <hr>
+
+        <div class="input-group">
+            <label for="wif-input">WIF Private Key:</label>
+            <input type="text" id="wif-input" placeholder="Enter WIF key">
+        </div>
+
+        <button id="convertWifButton" class="btn-submit">Convert to Hex</button>
+
+        <hr>
+
+        <!-- Results section -->
+        <div id="result" style="display:none;">
+            <h2>Conversion Result</h2>
+            <p><strong>Private Key (Hex):</strong> <span id="privateKeyHex"></span></p>
+        </div>
+    </div>
+    <script src="/js/wif_to_hex_ui.js"></script>
+</body>
+</html>
