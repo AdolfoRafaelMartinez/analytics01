@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Address from Private Key</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Derive Address from Private Key</h1>
+        <p>Enter a private key to calculate its public key and the corresponding testnet4 address.</p>
+        
+        <div class="form-group">
+            <label for="privateKey">Private Key:</label>
+            <input type="text" id="privateKey" name="privateKey" class="form-input" placeholder="Enter your private key in hex format">
+        </div>
+
+        <button id="deriveButton" class="btn-submit">Derive Address</button>
+
+        <div id="result" class="result-container" style="display: none;">
+            <h2>Derived Information</h2>
+            <p><strong>Public Key:</strong> <span id="publicKey"></span></p>
+            <p><strong>Address (testnet4):</strong> <span id="address"></span></p>
+        </div>
+    </div>
+
+    <script src="/js/private_key_ui.js"></script>
+</body>
+</html>
