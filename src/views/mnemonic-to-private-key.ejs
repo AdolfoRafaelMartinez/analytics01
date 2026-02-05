@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Address from Mnemonic</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css" />
+</head>
+<body>
+    <div class="container">
+        <a href="/">Home</a>
+        <h1>Derive Address from Mnemonic</h1>
+        <p>Generate a new mnemonic or enter an existing one to calculate its private key, public key, and corresponding address.</p>
+
+        <hr>
+
+        <h2>Generate a New Mnemonic</h2>
+        <button id="generateMnemonicButton" class="btn-submit">Generate New Mnemonic</button>
+
+        <hr>
+
+        <h2>Use an Existing Mnemonic</h2>
+        <div class="input-group">
+            <label for="mnemonic-input">Mnemonic:</label>
+            <input type="text" id="mnemonic-input" placeholder="Enter your 12 or 24-word mnemonic phrase">
+        </div>
+        <button id="useMnemonicButton" class="btn-submit">Use This Mnemonic</button>
+
+        <div id="mnemonicResult" class="result-container" style="display: none;">
+            <h2>Mnemonic Used</h2>
+            <p><strong>Mnemonic:</strong> <span id="mnemonic"></span></p>
+        </div>
+        
+        <div id="result" class="result-container" style="display: none;">
+            <h2>Derived Information</h2>
+            <p><strong>Private Key:</strong> <span id="privateKey"></span></p>
+            <p><strong>Public Key:</strong> <span id="publicKey"></span></p>
+            <p><strong>Address (testnet4):</strong> <span id="address"></span></p>
+        </div>
+    </div>
+
+    <script src="/js/mnemonic_ui.js"></script>
+</body>
+</html>

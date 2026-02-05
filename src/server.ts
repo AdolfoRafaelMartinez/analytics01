@@ -26,17 +26,20 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.get('/', (req: Request, res: Response) => {
-  const mnemonic = bip39.generateMnemonic();
-  res.render('index', { mnemonic: mnemonic });
+    res.render('home');
 });
 
 app.get('/wallet', (req: Request, res: Response) => {
     const mnemonic = bip39.generateMnemonic();
-    res.render('wallet', { mnemonic: mnemonic });
+    res.render('index', { mnemonic: mnemonic });
 });
 
 app.get('/private-key-to-address', (req: Request, res: Response) => {
     res.render('private-key-to-address');
+});
+
+app.get('/mnemonic-to-private-key', (req: Request, res: Response) => {
+    res.render('mnemonic-to-private-key');
 });
 
 app.get('/cointypes', (req: Request, res: Response) => {
@@ -99,6 +102,27 @@ app.post('/api/get-address-from-private-key', (req: Request, res: Response) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to derive address from private key.' });
+    }
+});
+
+app.post('/api/get-address-from-mnemonic', (req: Request, res: Response) => {
+    const { mnemonic: userMnemonic, network_name } = req.body;
+    const mnemonic = userMnemonic || bip39.generateMnemonic();
+    try {
+        if (userMnemonic && !bip39.validateMnemonic(userMnemonic)) {
+            return res.status(400).json({ error: 'Invalid mnemonic phrase.' });
+        }
+        const wallet = create_hd_wallet_bitcoin(mnemonic, network_name || 'testnet4');
+        const firstChild = wallet.childKeys[0];
+        res.json({ 
+            mnemonic: wallet.mnemonic,
+            privateKey: firstChild.privateKey,
+            publicKey: firstChild.publicKey,
+            address: firstChild.address
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to derive address from mnemonic.' });
     }
 });
 
