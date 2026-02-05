@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bitcoin Transaction</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css" />
+</head>
+<body>
+    <div class="container">
+        <a href="/">Home</a>
+        <h1>Bitcoin Transaction</h1>
+        <p>Create and broadcast a Bitcoin transaction on the testnet.</p>
+
+        <div class="input-group">
+            <label for="fromAddress">From Address:</label>
+            <input type="text" id="fromAddress" placeholder="Enter the source address">
+        </div>
+
+        <div class="input-group">
+            <label for="toAddress">To Address:</label>
+            <input type="text" id="toAddress" placeholder="Enter the destination address">
+        </div>
+
+        <div class="input-group">
+            <label for="amount">Amount (BTC):</label>
+            <input type="number" id="amount" placeholder="Enter the amount to send">
+        </div>
+
+        <div class="input-group">
+            <label for="privateKey">Private Key:</label>
+            <input type="password" id="privateKey" placeholder="Enter the private key for the from address">
+        </div>
+
+        <button id="sendTransactionButton" class="btn-submit">Send Transaction</button>
+
+        <div id="transactionResult" class="result-container" style="display: none;">
+            <h2>Transaction Result</h2>
+            <p><strong>Transaction Hash:</strong> <span id="transactionHash"></span></p>
+        </div>
+    </div>
+
+    <script src="/js/transfer_ui.js"></script>
+</body>
+</html>
