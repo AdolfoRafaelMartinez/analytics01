@@ -27,14 +27,15 @@ export const transferBtcP2pkh = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'No UTXOs found.' });
         }
 
-        const fee = 10000;
-        const amountInSatoshis = Math.floor(amount * 100000000);
-        let totalInput = 0;
+        const fee = BigInt(10000); // Use BigInt for fees
+        const amountInSatoshis = BigInt(Math.floor(amount * 100_000_000)); // Convert to satoshis as BigInt
+        let totalInput = BigInt(0);
 
         const psbt = new bitcoin.Psbt({ network });
 
         for (const utxo of utxos) {
-            totalInput += utxo.value;
+            // qn_listunspent returns amount in BTC, so convert to satoshis
+            totalInput += BigInt(Math.floor(utxo.amount * 100_000_000));
             psbt.addInput({
                 hash: utxo.txid,
                 index: utxo.vout,
