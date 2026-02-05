@@ -1,298 +1,70 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <link rel="stylesheet" type="text/css" href="/styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Wallet</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <a href="/">Home</a>
-    <h1>Bitcoin Wallet Generator</h1>
-    
-    <div class="creation-container">
-        <h3>1. Choose a Block Chain</h3>
-        <div class="wallet-and-network-container">
+    <div class="container">
+        <div class="header">
+            <img src="gnome.svg" alt="Bitcoin Gnome" class="logo"/>
+            <h1>Bitcoin Gnome</h1>
+        </div>
+        <p>A simple Bitcoin wallet for educational purposes.</p>
+
+        <div class="main-content">
+            <h3>1. Select Network</h3>
             <div class="input-group">
-                <label for="network-select">Chain: </label>
+                <label for="network-select">Network:</label>
                 <select id="network-select">
-                    <option value="mainnet">Mainnet</option>
                     <option value="testnet" selected>Testnet</option>
+                    <option value="mainnet">Mainnet</option>
                 </select>
-                <a href="/cointypes" style="margin-left: 10px;">Coin Types</a>
             </div>
-        <hr>
-        <h3>2. Choose a Wallet Name</h3>
+            <hr>
+            <h3>2. Coin Type</h3>
             <div class="input-group">
-                <label for="wallet-name-input">Name:</label>
-                <input type="text" id="wallet-name-input" placeholder="Enter wallet name (e.g., 'My First Wallet')">
+                <label for="coin-type-select">Coin Type:</label>
+                <select id="coin-type-select" disabled>
+                    <option value="1" selected>Testnet (BTC)</option>
+                </select>
+            </div>
+            <hr>
+            <h3>3. Choose or Input a Mnemonic</h3>
+            <div class="input-group">
+                <label for="mnemonic-input">Mnemonic:</label>
+                <input type="text" id="mnemonic-input" value="<%= mnemonic %>" placeholder="Enter your 12 or 24-word mnemonic phrase">
+            </div>
+            <div class="button-container">
+                <button id="generateMnemonicButton">Generate New Mnemonic</button>
+            </div>
+            <hr>
+            <div class="generate-load-container">
+                <div class="generate-wallet-section">
+                    <h3>4. Save & Generate Keys</h3>
+                    <button id="wallet-btn">Save</button>
+                </div>
+                <div class="vertical-separator"></div>
+            </div>
+            <hr>
+            <div class="load-wallet-section">
+                <h3>Or Load an Existing Wallet</h3>
+                <input type="file" id="load-input" accept=".txt,.json">
             </div>
         </div>
-        <hr>
-        <h3>3. Choose or Input a Mnemonic</h3>
-        <div class="input-group">
-            <label for="mnemonic-input">Mnemonic:</label>
-            <input type="text" id="mnemonic-input" value="<%= mnemonic %>" placeholder="Enter your 12 or 24-word mnemonic phrase">
-        </div>
-        <div class="button-container">
-            <button id="generate-btn">Spin Again</button>
-        </div>
-        <hr>
-        <div class="generate-load-container">
-            <div class="generate-wallet-section">
-                <h3>4. Save & Generate Keys</h3>
-                <button id="wallet-btn">Save</button>
-            </div>
-            <div class="vertical-separator"></div>
-        </div>
-        <hr>
-        <div class="load-wallet-section">
-            <h3>Or Load an Existing Wallet</h3>
-            <input type="file" id="load-input" accept=".txt,.json">
+
+        <!-- Results section -->
+        <div id="result" style="display:none;">
+            <h2>Derived Information</h2>
+            <p><strong>Private Key (Hex):</strong> <span id="privateKeyHex"></span></p>
+            <p><strong>Private Key (WIF):</strong> <span id="privateKeyWIF"></span></p>
+            <p><strong>Public Key:</strong> <span id="publicKey"></span></p>
+            <p><strong>Address:</strong> <span id="address"></span></p>
         </div>
     </div>
 
-    <hr>
-
-    <div id="wallet-info"></div>
-
-    <hr>
-
-    <script>
-        let currentWallet = null;
-
-        // --- Event Listeners -- -
-
-        document.getElementById('generate-btn').addEventListener('click', async () => {
-            const mnemonicInput = document.getElementById('mnemonic-input');
-
-            // Prevent re-triggering while spinning
-            if (mnemonicInput.classList.contains('spinning')) {
-                return;
-            }
-
-            // Start the animation
-            mnemonicInput.classList.add('spinning');
-
-            // Fetch the new mnemonic in parallel with the animation
-            const responsePromise = fetch('/api');
-            const timerPromise = new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Wait for both the API call and the animation to finish
-            const [response] = await Promise.all([responsePromise, timerPromise]);
-            
-            const data = await response.json();
-
-            // Update content after animation
-            mnemonicInput.value = data.mnemonic;
-            
-            // Remove the class so it can be re-added on the next click
-            mnemonicInput.classList.remove('spinning');
-
-            // Clear old wallet info
-            document.getElementById('wallet-info').innerHTML = '';
-            document.getElementById('wallet-name-input').value = '';
-            currentWallet = null;
-        });
-
-        document.getElementById('wallet-btn').addEventListener('click', async () => {
-            // --- Gnome Animation -- -
-            const numGnomes = 5; // Number of gnomes to show
-            for (let i = 0; i < numGnomes; i++) {
-                // Create a delay for each gnome to appear
-                setTimeout(() => {
-                    createDancingGnome();
-                }, i * 500); // Stagger the gnomes by 500ms
-            }
-
-
-            const mnemonic = document.getElementById('mnemonic-input').value;
-            const name = document.getElementById('wallet-name-input').value;
-            const network = document.getElementById('network-select').value;
-            
-            await generateWallet(mnemonic, name, network);
-
-            // Save functionality merged from save-btn
-            if (!currentWallet) {
-                // The generateWallet function will display an error, so we just stop.
-                return;
-            }
-            const walletName = document.getElementById('wallet-name-input').value.trim();
-            const filename = walletName ? `${walletName.replace(/\s+/g, '_')}.json` : 'wallet.json';
-            
-            const walletToSave = {
-                network: currentWallet.network,
-                name: currentWallet.name,
-                mnemonic: currentWallet.mnemonic
-            };
-
-            const walletString = JSON.stringify(walletToSave, null, 2);
-            downloadFile(walletString, filename, 'application/json');
-        });
-
-        document.getElementById('load-input').addEventListener('change', () => {
-            const input = document.getElementById('load-input');
-            if (input.files.length === 0) {
-                alert("Please select a file!");
-                return;
-            }
-            const file = input.files[0];
-            const reader = new FileReader();
-
-            reader.onload = async (event) => {
-                const content = event.target.result;
-                let mnemonic;
-                let walletName = '';
-                let network;
-                try {
-                    const wallet = JSON.parse(content);
-                    mnemonic = wallet.mnemonic;
-                    walletName = wallet.name || '';
-                    network = wallet.network || 'testnet'; // Get network from wallet file, default to testnet
-                    document.getElementById('network-select').value = network; // Set dropdown to loaded network
-                } catch (e) {
-                    mnemonic = content.trim();
-                    network = document.getElementById('network-select').value; // use selected network if it's a plain mnemonic file
-                }
-
-                if (!mnemonic) {
-                    alert("Could not find a mnemonic in the file.");
-                    return;
-                }
-
-                document.getElementById('mnemonic-input').value = mnemonic;
-                document.getElementById('wallet-name-input').value = walletName;
-                await generateWallet(mnemonic, walletName, network);
-            };
-
-            reader.onerror = (event) => {
-                alert("Error reading file: " + event.target.error.name);
-            };
-
-            reader.readAsText(file);
-        });
-
-        document.getElementById('network-select').addEventListener('change', () => {
-            document.getElementById('wallet-info').innerHTML = '';
-            currentWallet = null;
-        });
-
-        document.getElementById('wallet-name-input').addEventListener('input', () => {
-            document.getElementById('wallet-info').innerHTML = '';
-            currentWallet = null;
-        });
-
-        // --- Core Functions -- -
-
-        async function generateWallet(mnemonic, name, network) {
-            const response = await fetch('/api/wallet', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ mnemonic, name, network }),
-            });
-            const wallet = await response.json();
-            const walletInfoDiv = document.getElementById('wallet-info');
-
-            if (wallet.error) {
-                walletInfoDiv.innerHTML = `<p class="error">Error: ${wallet.error}</p>`;
-                currentWallet = null;
-            } else {
-                currentWallet = wallet;
-                displayWallet(wallet, walletInfoDiv);
-            }
-        }
-
-        function displayWallet(wallet, container) {
-            const keysTableId = 'keys-table';
-            const mempoolUrl = wallet.network === 'mainnet' ? 'https://mempool.space/address/' : 'https://mempool.space/testnet/address/';
-
-            let html = `<h2>Wallet Information</h2>`;
-            html += `<p><strong>Name:</strong> ${wallet.name || 'N/A'}</p>`;
-            html += `<p><strong>Mnemonic:</strong> ${wallet.mnemonic}</p>`;
-            html += `<p><strong>Seed:</strong> ${wallet.seed}</p>`;
-            html += `<p><strong>Network:</strong> ${wallet.network}</p>`;
-            html += `<p><strong>Root:</strong> ${wallet.root}</p>`;
-            
-            html += `<h3>Child Keys:</h3>`;
-            html += `<p>The "path" is a standard derivation path used in HD (Hierarchical Deterministic) wallets to generate a tree of keys from a single master seed. The format is <code>m/purpose'/coin_type'/account'/change/index</code>:</p>`
-            html += `<ul>`;
-            html += `<li><b>m</b>: Stands for Master, the root of the key tree.</li>`;
-            html += `<li><b>purpose'</b>: Defines the standard being used (e.g., 49' for P2SH-P2WPKH SegWit addresses). The apostrophe indicates hardened derivation.</li>`;
-            html += `<li><b>coin_type'</b>: Specifies the cryptocurrency (e.g., 0' for Bitcoin Mainnet, 1' for Testnet).</li>`;
-            html += `<li><b>account'</b>: Allows you to organize your wallet into separate logical accounts.</li>`;
-            html += `<li><b>change</b>: Distinguishes between external (receiving) addresses (0) and internal (change) addresses (1).</li>`;
-            html += `<li><b>index</b>: The sequential number of the address being derived.</li>`;
-            html += `</ul>`;
-            html += `<p>Click on a private key to reveal/hide it.</p>`;
-
-            html += `<table id="${keysTableId}">`;
-            html += `<tr><th>Path</th><th>Address</th><th>Private Key</th><th>Public Key</th></tr>`;
-            wallet.childKeys.forEach(key => {
-                const path = key.path;
-                const pathString = `${path.m}/${path.purpose}/${path.coinType}/${path.account}/${path.change}/${path.index}`;
-                const addressUrl = `${mempoolUrl}${key.address}`;
-                html += `<tr>`;
-                html += `<td>${pathString}</td>`;
-                html += `<td><a href="${addressUrl}" target="_blank">${key.address}</a></td>`;
-                html += `<td class="sensitive is-hidden" data-private-key="${key.privateKey}" style="cursor: pointer;">hidden</td>`;
-                html += `<td>${key.publicKey}</td>`;
-                html += `</tr>`;
-            });
-            html += `</table>`;
-            container.innerHTML = html;
-
-            const privateKeyCells = container.querySelectorAll('.sensitive');
-            privateKeyCells.forEach(clickedCell => {
-                clickedCell.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    const isRevealed = clickedCell.textContent !== 'hidden';
-                    
-                    // Hide all keys first
-                    privateKeyCells.forEach(cell => {
-                        cell.textContent = 'hidden';
-                        cell.classList.add('is-hidden');
-                    });
-
-                    if (!isRevealed) {
-                        clickedCell.textContent = clickedCell.getAttribute('data-private-key');
-                        clickedCell.classList.remove('is-hidden');
-                    }
-                });
-            });
-        }
-
-        // Global click listener to hide keys when clicking outside
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.sensitive').forEach(cell => {
-                cell.textContent = 'hidden';
-                cell.classList.add('is-hidden');
-            });
-        });
-
-        function downloadFile(content, fileName, contentType) {
-            const blob = new Blob([content], { type: contentType });
-            const anchor = document.createElement('a');
-            anchor.download = fileName;
-            anchor.href = window.URL.createObjectURL(blob);
-            anchor.click();
-            window.URL.revokeObjectURL(anchor.href);
-        }
-
-        function createDancingGnome() {
-            const gnome = document.createElement('div');
-            gnome.className = 'gnome';
-
-            // Set a random starting horizontal position
-            gnome.style.left = `${Math.random() * 20 - 10}vw`; 
-
-            document.body.appendChild(gnome);
-
-            // Remove the gnome after the animation finishes
-            setTimeout(() => {
-                gnome.remove();
-            }, 7000); // Match animation duration
-        }
-
-    </script>
+    <script src="js/mnemonic_ui.js"></script>
 </body>
 </html>
