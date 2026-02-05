@@ -3,53 +3,81 @@ document.addEventListener('DOMContentLoaded', () => {
     const fromAddressInput = document.getElementById('fromAddress');
     const toAddressInput = document.getElementById('toAddress');
     const amountInput = document.getElementById('amount');
-    const sendTransactionButton = document.getElementById('sendTransactionButton');
-    const transactionResultDiv = document.getElementById('transactionResult');
-    const transactionHashSpan = document.getElementById('transactionHash');
+    const transactionForm = document.getElementById('transactionForm');
+    const transactionResult = document.getElementById('transactionResult');
+    const transactionId = document.getElementById('transactionId');
 
-    // Derive the fromAddress whenever the private key changes
-    privateKeyInput.addEventListener('input', async () => {
-        const privateKey = privateKeyInput.value;
-        if (privateKey.length > 0) {
-            try {
-                const response = await fetch('/api/get-address-from-private-key', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ privateKey, network_name: 'testnet' })
-                });
-                const data = await response.json();
-                if (data.address) {
-                    fromAddressInput.value = data.address;
-                } else {
-                    fromAddressInput.value = 'Invalid private key';
-                }
-            } catch (error) {
-                fromAddressInput.value = 'Error deriving address';
-            }
+    // Function to derive address from private key
+    const deriveAddress = async () => {
+        const privateKey = privateKeyInput.value.trim();
+        const network = 'testnet'
+
+        if (!privateKey) {
+            fromAddressInput.value = '';
+            return;
         }
-    });
-
-    // Handle the send transaction button click
-    sendTransactionButton.addEventListener('click', async () => {
-        const privateKey = privateKeyInput.value;
-        const fromAddress = fromAddressInput.value;
-        const toAddress = toAddressInput.value;
-        const amount = amountInput.value;
 
         try {
-            const response = await fetch('/transfer-btc-p2pkh', {
+            const response = await fetch('/api/get-address-from-private-key', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ privateKey, fromAddress, toAddress, amount })
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    privateKey: privateKey,
+                    network_name: network
+                })
+            });
+
+            if (!response.ok) {
+                fromAddressInput.value = 'Error deriving address';
+                return;
+            }
+
+            const data = await response.json();
+            if (data.address) {
+                fromAddressInput.value = data.address;
+            } else {
+                fromAddressInput.value = 'Invalid private key';
+            }
+        } catch (error) {
+            fromAddressInput.value = 'Error deriving address';
+        }
+    };
+
+    // Event listener for private key input
+    privateKeyInput.addEventListener('blur', deriveAddress);
+
+    // Event listener for form submission
+    transactionForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const privateKey = privateKeyInput.value.trim();
+        const toAddress = toAddressInput.value.trim();
+        const amount = amountInput.value.trim();
+        const network = 'testnet'
+
+        try {
+            const response = await fetch('/api/transfer-p2pkh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    privateKey: privateKey,
+                    toAddress: toAddress,
+                    amount: parseInt(amount),
+                    network_name: network
+                })
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                transactionHashSpan.textContent = data.txHash;
-                transactionResultDiv.style.display = 'block';
+                transactionId.textContent = data.txid;
+                transactionResult.style.display = 'block';
             } else {
-                alert(`Error: ${data.error}`);
+                alert('Error: ' + data.error);
             }
         } catch (error) {
             alert('An unexpected error occurred.');
