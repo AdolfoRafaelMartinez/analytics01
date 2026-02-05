@@ -6,23 +6,40 @@
 </head>
 <body>
     <div class="container">
+        <a href="/">Home</a>
         <h1>Derive Address from Private Key</h1>
-        <p>Enter a private key to calculate its public key and the corresponding testnet4 address.</p>
+        <p>Enter a private key in WIF format to calculate its public key and the corresponding address.</p>
         
-        <div class="form-group">
-            <label for="privateKey">Private Key:</label>
-            <input type="text" id="privateKey" name="privateKey" class="form-input" placeholder="Enter your private key in hex format">
-        </div>
+        <form method="POST" action="/private-key-to-address">
+            <div class="form-group">
+                <label for="network_name">Network:</label>
+                <select name="network_name" id="network_name" class="form-input">
+                    <option value="testnet">Testnet</option>
+                    <option value="mainnet">Mainnet</option>
+                </select>
+            </div>
 
-        <button id="deriveButton" class="btn-submit">Derive Address</button>
+            <div class="form-group">
+                <label for="privateKey">Private Key (WIF):</label>
+                <input type="text" id="privateKey" name="privateKey" class="form-input" placeholder="Enter your WIF private key">
+            </div>
+    
+            <button type="submit" class="btn-submit">Derive Address</button>
+        </form>
 
-        <div id="result" class="result-container" style="display: none;">
-            <h2>Derived Information</h2>
-            <p><strong>Public Key:</strong> <span id="publicKey"></span></p>
-            <p><strong>Address (testnet4):</strong> <span id="address"></span></p>
-        </div>
+        <% if (address) { %>
+            <div class="result-container">
+                <h2>Derived Information</h2>
+                <p><strong>Address:</strong> <%= address %></p>
+            </div>
+        <% } %>
+
+        <% if (error) { %>
+            <div class="error-container">
+                <h2>Error</h2>
+                <p><%= error %></p>
+            </div>
+        <% } %>
     </div>
-
-    <script src="/js/private_key_ui.js"></script>
 </body>
 </html>

@@ -47,10 +47,11 @@ export const getAddressFromMnemonic = async (req: Request, res: Response) => {
         const child = root.derivePath(path);
         const { address } = bitcoin.payments.p2pkh({ pubkey: child.publicKey, network });
         const privateKey = child.toWIF();
+        const publicKey = child.publicKey.toString('hex');
 
 
         if (address) {
-            res.json({ address, privateKey });
+            res.json({ address, privateKey, publicKey });
         } else {
             res.status(400).json({ error: 'Invalid mnemonic' });
         }
