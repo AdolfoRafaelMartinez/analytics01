@@ -6,11 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const transactionForm = document.getElementById('transactionForm');
     const transactionResult = document.getElementById('transactionResult');
     const transactionId = document.getElementById('transactionId');
+    const networkSelect = document.getElementById('network');
 
     // Function to derive address from private key
     const deriveAddress = async () => {
         const privateKey = privateKeyInput.value.trim();
-        const network = 'testnet'
+        const network = networkSelect.value;
 
         if (!privateKey) {
             fromAddressInput.value = '';
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listener for private key input
     privateKeyInput.addEventListener('blur', deriveAddress);
+    networkSelect.addEventListener('change', deriveAddress);
 
     // Event listener for form submission
     transactionForm.addEventListener('submit', async (e) => {
@@ -55,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const privateKey = privateKeyInput.value.trim();
         const toAddress = toAddressInput.value.trim();
         const amount = amountInput.value.trim();
-        const network = 'testnet'
+        const network = networkSelect.value;
 
         try {
             const response = await fetch('/api/transfer-p2pkh', {

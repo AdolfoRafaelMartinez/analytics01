@@ -1,43 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bitcoin Transaction (P2PKH)</title>
-    <link rel="stylesheet" type="text/css" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <div class="container">
-        <a href="/">Home</a>
         <h1>Bitcoin Transaction (P2PKH)</h1>
-        <p>Create and broadcast a Pay-to-Public-Key-Hash (P2PKH) transaction on the testnet.</p>
-
-        <div class="input-group">
-            <label for="privateKey">Private Key (WIF):</label>
-            <input type="password" id="privateKey" placeholder="Enter your Wallet Import Format private key">
-        </div>
-
-        <div class="input-group">
-            <label for="fromAddress">From Address:</label>
-            <input type="text" id="fromAddress" placeholder="Will be derived automatically" readonly>
-        </div>
-
-        <div class="input-group">
-            <label for="toAddress">To Address:</label>
-            <input type="text" id="toAddress" placeholder="Enter the destination P2PKH address">
-        </div>
-
-        <div class="input-group">
-            <label for="amount">Amount (BTC):</label>
-            <input type="number" id="amount" placeholder="Enter the amount to send">
-        </div>
-
-        <button id="sendTransactionButton" class="btn-submit">Send Transaction</button>
-
-        <div id="transactionResult" class="result-container" style="display: none;">
-            <h2>Transaction Result</h2>
-            <p><strong>Transaction Hash:</strong> <span id="transactionHash"></span></p>
+        <form id="transactionForm">
+            <div class="form-group">
+                <label for="privateKey">Private Key (WIF):</label>
+                <input type="text" id="privateKey" name="privateKey" placeholder="Enter your Wallet Import Format private key" required>
+            </div>
+            <div class="form-group">
+                <label for="network">Network:</label>
+                <select id="network" name="network">
+                    <option value="testnet" selected>Testnet</option>
+                    <option value="mainnet">Mainnet</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fromAddress">From Address:</label>
+                <input type="text" id="fromAddress" name="fromAddress" readonly>
+            </div>
+            <div class="form-group">
+                <label for="toAddress">To Address:</label>
+                <input type="text" id="toAddress" name="toAddress" placeholder="Enter recipient's address" required>
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount (in satoshis):</label>
+                <input type="number" id="amount" name="amount" placeholder="Enter amount in satoshis" required>
+            </div>
+            <button type="submit">Send Transaction</button>
+        </form>
+        <div id="transactionResult" style="display:none;">
+            <h2>Transaction Successful!</h2>
+            <p>Transaction ID: <span id="transactionId"></span></p>
         </div>
     </div>
-
     <script src="/js/transfer_p2pkh_ui.js"></script>
 </body>
 </html>

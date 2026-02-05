@@ -26,8 +26,8 @@ export const getAddressFromPrivateKey = async (req: Request, res: Response) => {
         } else {
             res.status(400).json({ error: 'Invalid private key' });
         }
-    } catch (error) {
-        res.status(500).json({ error: 'Error deriving address' });
+    } catch (error: any) {
+        res.status(500).json({ error: error.message || 'Error deriving address' });
     }
 };
 
