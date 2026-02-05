@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { getHomePage, getMnemonicToPrivateKeyPage, getPrivateKeyToAddressPage } from '../controllers/main_controller';
+import { getHomePage, getMnemonicToPrivateKeyPage, getPrivateKeyToAddressPage, getWalletPage } from '../controllers/main_controller';
 import { getAddressFromMnemonic, getAddressFromPrivateKey, createWallet, postPrivateKeyToAddressPage } from '../controllers/address_controller';
 
 const router = Router();
 
 // Page-serving routes
 router.get('/', getHomePage);
+router.get('/wallet', getWalletPage);
 router.get('/mnemonic-to-private-key', getMnemonicToPrivateKeyPage);
 router.get('/private-key-to-address', getPrivateKeyToAddressPage);
 

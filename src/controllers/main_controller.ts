@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 
 export const getHomePage = (req: Request, res: Response) => {
+    res.render('home');
+};
+
+export const getWalletPage = (req: Request, res: Response) => {
     const data = {
         mnemonic: ''
     };
