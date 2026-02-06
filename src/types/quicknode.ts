@@ -1,4 +1,4 @@
-export interface QuickNodeResponse<T> {
+export interface RpcResponse<T> {
     id: number;
     jsonrpc: string;
     result: T;
@@ -11,6 +11,5 @@ export interface Utxo {
     hex: string;
 }
 
-export type ListUnspentResponse = QuickNodeResponse<Utxo[]>;
-export type SendRawTransactionResponse = QuickNodeResponse<string>;
-export type GetRawTransactionResponse = QuickNodeResponse<string>;
+export type SendRawTransactionResponse = RpcResponse<string>;
+export type GetRawTransactionResponse = RpcResponse<string>;
