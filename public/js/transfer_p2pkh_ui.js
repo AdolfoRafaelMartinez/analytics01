@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     privateKey: privateKey,
                     fromAddress: fromAddress, // Add fromAddress to the request body
                     toAddress: toAddress,
-                    amount: parseInt(amount),
+                    amount: parseFloat(amount),
                     network_name: network
                 })
             });
