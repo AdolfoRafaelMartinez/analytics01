@@ -13,14 +13,14 @@ const bip32 = BIP32Factory(ecc);
 const walletCache = new Map<string, any>();
 
 export const getAddressFromMnemonic = (req: Request, res: Response) => {
-    const { mnemonic, network_name } = req.body;
+    const { mnemonic, network_name, path: derivationPath } = req.body;
     const network = network_name === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
 
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     const root = bip32.fromSeed(seed);
     root.network = network;
 
-    const path = `m/44\'/0\'/0\'/0/0`;
+    const path = derivationPath || `m/44'/0'/0'/0/0`;
     const child = root.derivePath(path);
 
     if (!child.privateKey) {
@@ -33,7 +33,8 @@ export const getAddressFromMnemonic = (req: Request, res: Response) => {
         address,
         privateKey: child.toWIF(),
         privateKeyHex: child.privateKey.toString('hex'),
-        publicKey: child.publicKey.toString('hex')
+        publicKey: child.publicKey.toString('hex'),
+        seed: seed.toString('hex')
     });
 };
 

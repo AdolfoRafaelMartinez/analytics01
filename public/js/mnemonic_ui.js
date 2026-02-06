@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const networkSelect = document.getElementById('network-select');
-    const coinTypeSelect = document.getElementById('coin-type-select');
-    const mnemonicInput = document.getElementById('mnemonic-input');
+    const mnemonicForm = document.getElementById('mnemonicForm');
     const generateMnemonicButton = document.getElementById('generateMnemonicButton');
-    const useMnemonicButton = document.getElementById('useMnemonicButton');
+    const mnemonicInput = document.getElementById('mnemonic');
 
     const resultDiv = document.getElementById('result');
+    const seedSpan = document.getElementById('seed');
     const privateKeyHexSpan = document.getElementById('privateKeyHex');
     const privateKeyWIFSpan = document.getElementById('privateKeyWIF');
     const publicKeySpan = document.getElementById('publicKey');
@@ -24,44 +23,45 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (useMnemonicButton) {
-        useMnemonicButton.addEventListener('click', async () => {
+    if (mnemonicForm) {
+        mnemonicForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent form from submitting the traditional way
             const mnemonic = mnemonicInput.value.trim();
             if (!mnemonic) {
-                alert('Please enter a mnemonic phrase.');
+                alert('Please enter or generate a mnemonic phrase.');
                 return;
             }
-            fetchAddress(mnemonic);
-        });
-    }
+            
+            const network = document.getElementById('network').value;
+            const path = document.getElementById('path').value;
 
-    async function fetchAddress(mnemonic) {
-        try {
-            const network = networkSelect.value;
-            const body = { mnemonic, network_name: network };
-            const response = await fetch('/mnemonic-to-private-key', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body)
-            });
+            try {
+                const response = await fetch('/mnemonic-to-private-key', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ mnemonic, network_name: network, path })
+                });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                seedSpan.textContent = data.seed;
+                privateKeyWIFSpan.textContent = data.privateKey;
+                privateKeyHexSpan.textContent = data.privateKeyHex;
+                addressSpan.textContent = data.address;
+                publicKeySpan.textContent = data.publicKey;
+
+                if(resultDiv) resultDiv.style.display = 'block';
+            } catch (error) {
+                console.error('Error fetching address:', error);
+                alert(`Failed to derive keys: ${error.message}`);
             }
-
-            const data = await response.json();
-
-            privateKeyWIFSpan.textContent = data.privateKey;
-            privateKeyHexSpan.textContent = data.privateKeyHex;
-            addressSpan.textContent = data.address;
-            publicKeySpan.textContent = data.publicKey;
-
-            if(resultDiv) resultDiv.style.display = 'block';
-        } catch (error) {
-            console.error('Error fetching address:', error);
-            alert('Failed to derive address from mnemonic.');
-        }
+        });
     }
 });

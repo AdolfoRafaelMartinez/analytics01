@@ -17,29 +17,36 @@
 
         <hr>
 
-        <h2>Use an Existing Mnemonic</h2>
-        <div class="input-group">
-            <label for="network-select">Network:</label>
-            <select id="network-select">
-                <option value="testnet" selected>Testnet</option>
-                <option value="testnet2">Testnet2</option>
-                <option value="testnet3">Testnet3</option>
-                <option value="testnet4">Testnet4</option>
-                <option value="mainnet">Mainnet</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label for="mnemonic-input">Mnemonic:</label>
-            <input type="text" id="mnemonic-input" placeholder="Enter your 12 or 24-word mnemonic phrase">
-        </div>
-        <button id="useMnemonicButton" class="btn-submit">Use This Mnemonic</button>
+        <h2>Calculate from Existing Mnemonic</h2>
+        <form id="mnemonicForm">
+            <div class="form-group">
+                <label for="mnemonic">Mnemonic Phrase:</label>
+                <input type="text" id="mnemonic" name="mnemonic" class="form-control" placeholder="Enter your 12 or 24-word mnemonic phrase">
+            </div>
+            <div class="form-group">
+                <label for="network">Network:</label>
+                <select id="network" name="network">
+                    <option value="testnet">Testnet</option>
+                    <option value="testnet2">Testnet2</option>
+                    <option value="testnet3">Testnet3</option>
+                    <option value="testnet4">Testnet4</option>
+                    <option value="mainnet">Mainnet</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="path">Derivation Path:</label>
+                <input type="text" id="path" name="path" value="m/44'/1'/0'/0/0" placeholder="e.g., m/44'/1'/0'/0/0">
+            </div>
+            <button type="submit" class="btn-submit">Derive Keys</button>
+        </form>
 
         <!-- Results section -->
         <div id="result" style="display:none;">
             <h2>Derived Information</h2>
+            <p><strong>Seed (Hex):</strong> <span id="seed"></span></p>
             <p><strong>Private Key (Hex):</strong> <span id="privateKeyHex"></span></p>
             <p><strong>Private Key (WIF):</strong> <span id="privateKeyWIF"></span></p>
-            <p><strong>Public Key:</strong> <span id="publicKey"></span></p>
+            <p><strong>PublicKey:</strong> <span id="publicKey"></span></p>
             <p><strong>Address:</strong> <span id="address"></span></p>
         </div>
     </div>
