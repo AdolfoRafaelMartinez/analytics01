@@ -5,10 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const amountInput = document.getElementById('amount');
     const transactionForm = document.getElementById('transactionForm');
     const transactionResult = document.getElementById('transactionResult');
-    const transactionId = document.getElementById('transactionId');
+    const transactionLink = document.getElementById('transactionLink');
     const networkSelect = document.getElementById('network');
 
-    // Function to derive address from private key
     const deriveAddress = async () => {
         const privateKey = privateKeyInput.value.trim();
         const network = networkSelect.value;
@@ -42,16 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Event listener for private key input
     privateKeyInput.addEventListener('blur', deriveAddress);
     networkSelect.addEventListener('change', deriveAddress);
 
-    // Event listener for form submission
     transactionForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const privateKey = privateKeyInput.value.trim();
-        const fromAddress = fromAddressInput.value.trim(); // Read the fromAddress
+        const fromAddress = fromAddressInput.value.trim();
         const toAddress = toAddressInput.value.trim();
         const amount = amountInput.value.trim();
         const network = networkSelect.value;
@@ -64,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({
                     privateKey: privateKey,
-                    fromAddress: fromAddress, // Add fromAddress to the request body
+                    fromAddress: fromAddress,
                     toAddress: toAddress,
                     amount: parseFloat(amount),
                     network_name: network
@@ -74,7 +71,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                transactionId.textContent = data.txid;
+                const txid = data.txid;
+                let explorerUrl;
+
+                switch (network) {
+                    case 'mainnet':
+                        explorerUrl = `https://mempool.space/tx/${txid}`;
+                        break;
+                    case 'testnet4':
+                        explorerUrl = `https://mempool.space/testnet4/tx/${txid}`;
+                        break;
+                    default:
+                        // Default to the standard testnet for testnet, testnet2, testnet3
+                        explorerUrl = `https://mempool.space/testnet/tx/${txid}`;
+                }
+                
+                transactionLink.href = explorerUrl;
+                transactionLink.textContent = txid;
                 transactionResult.style.display = 'block';
             } else {
                 alert('Error: ' + data.error);

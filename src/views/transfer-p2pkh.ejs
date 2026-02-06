@@ -17,10 +17,10 @@
             <div class="form-group">
                 <label for="network">Network:</label>
                 <select id="network" name="network">
-                    <option value="testnet" selected>Testnet</option>
+                    <option value="testnet">Testnet</option>
                     <option value="testnet2">Testnet2</option>
                     <option value="testnet3">Testnet3</option>
-                    <option value="testnet4">Testnet4</option>
+                    <option value="testnet4" selected>Testnet4</option>
                     <option value="mainnet">Mainnet</option>
                 </select>
             </div>
@@ -33,14 +33,14 @@
                 <input type="text" id="toAddress" name="toAddress" placeholder="Enter recipient's address" required>
             </div>
             <div class="form-group">
-                <label for="amount">Amount (in satoshis):</label>
-                <input type="number" id="amount" name="amount" placeholder="Enter amount in satoshis" required>
+                <label for="amount">Amount (BTC):</label>
+                <input type="text" id="amount" name="amount" placeholder="Enter amount in BTC" required>
             </div>
             <button type="submit">Send Transaction</button>
         </form>
         <div id="transactionResult" style="display:none;">
             <h2>Transaction Successful!</h2>
-            <p>Transaction ID: <span id="transactionId"></span></p>
+            <p>Transaction ID: <a id="transactionLink" href="#" target="_blank"></a></p>
         </div>
     </div>
     <script src="/js/transfer_p2pkh_ui.js"></script>
