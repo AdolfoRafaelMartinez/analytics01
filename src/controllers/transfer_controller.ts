@@ -8,7 +8,6 @@ import { Utxo } from '../types/quicknode.js';
 const ECPair = ECPairFactory(ecc);
 
 export const transferBtc = async (req: Request, res: Response) => {
-    // Updated to use amount in satoshis to avoid floating point issues
     const { fromAddress, toAddress, amount, privateKey } = req.body;
 
     if (!fromAddress || !toAddress || !amount || !privateKey) {
@@ -28,10 +27,10 @@ export const transferBtc = async (req: Request, res: Response) => {
 
         const psbt = new bitcoin.Psbt({ network });
         const SATOSHIS_PER_BTC = 100_000_000;
-        let totalInputInSatoshis = 0;
+        let totalInputInSatoshis = BigInt(0);
 
         for (const utxo of utxos) {
-            const utxoAmountInSatoshis = Math.floor(utxo.amount * SATOSHIS_PER_BTC);
+            const utxoAmountInSatoshis = BigInt(Math.floor(utxo.amount * SATOSHIS_PER_BTC));
             totalInputInSatoshis += utxoAmountInSatoshis;
             psbt.addInput({
                 hash: utxo.txid,
@@ -40,8 +39,8 @@ export const transferBtc = async (req: Request, res: Response) => {
             });
         }
 
-        const amountToSendInSatoshis = Math.floor(amount * SATOSHIS_PER_BTC);
-        const feeInSatoshis = 10000; // a fixed fee for simplicity
+        const amountToSendInSatoshis = BigInt(Math.floor(amount * SATOSHIS_PER_BTC));
+        const feeInSatoshis = BigInt(10000); // a fixed fee for simplicity
         const changeInSatoshis = totalInputInSatoshis - amountToSendInSatoshis - feeInSatoshis;
 
         if (totalInputInSatoshis < amountToSendInSatoshis + feeInSatoshis) {
@@ -53,7 +52,7 @@ export const transferBtc = async (req: Request, res: Response) => {
             value: amountToSendInSatoshis,
         });
 
-        if (changeInSatoshis > 0) {
+        if (changeInSatoshis > BigInt(0)) {
             psbt.addOutput({
                 address: fromAddress, // Send change back to the sender
                 value: changeInSatoshis,
