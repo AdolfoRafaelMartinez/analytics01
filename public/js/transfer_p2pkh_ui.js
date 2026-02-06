@@ -30,16 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
 
-            if (!response.ok) {
-                fromAddressInput.value = 'Error deriving address';
-                return;
-            }
-
             const data = await response.json();
-            if (data.address) {
+
+            if (response.ok) {
                 fromAddressInput.value = data.address;
             } else {
-                fromAddressInput.value = 'Invalid private key';
+                fromAddressInput.value = data.error || 'Error deriving address';
             }
         } catch (error) {
             fromAddressInput.value = 'Error deriving address';

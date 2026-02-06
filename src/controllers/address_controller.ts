@@ -20,13 +20,19 @@ export const getAddressFromMnemonic = (req: Request, res: Response) => {
     const root = bip32.fromSeed(seed);
     root.network = network;
 
-    const path = `m/44'/0'/0'/0/0`;
+    const path = `m/44\'/0\'/0\'/0/0`;
     const child = root.derivePath(path);
+
+    if (!child.privateKey) {
+        return res.status(500).json({ error: 'Could not derive private key.' });
+    }
+
     const { address } = bitcoin.payments.p2pkh({ pubkey: child.publicKey, network });
 
     res.json({ 
         address,
         privateKey: child.toWIF(),
+        privateKeyHex: child.privateKey.toString('hex'),
         publicKey: child.publicKey.toString('hex')
     });
 };
@@ -35,10 +41,13 @@ export const getAddressFromPrivateKey = (req: Request, res: Response) => {
     const { privateKey, network_name } = req.body;
     const network = network_name === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
 
-    const keyPair = ECPair.fromWIF(privateKey, network);
-    const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network });
-
-    res.json({ address });
+    try {
+        const keyPair = ECPair.fromWIF(privateKey, network);
+        const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network });
+        res.json({ address });
+    } catch (error: any) {
+        res.status(400).json({ error: error.message });
+    }
 };
 
 export const postPrivateKeyToAddressPage = (req: Request, res: Response) => {

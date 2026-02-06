@@ -54,10 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             privateKeyWIFSpan.textContent = data.privateKey;
+            privateKeyHexSpan.textContent = data.privateKeyHex;
             addressSpan.textContent = data.address;
             publicKeySpan.textContent = data.publicKey;
-
-            privateKeyHexSpan.textContent = 'N/A (WIF provided)';
 
             if(resultDiv) resultDiv.style.display = 'block';
         } catch (error) {
