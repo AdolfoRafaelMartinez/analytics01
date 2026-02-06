@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         const privateKey = privateKeyInput.value.trim();
+        const fromAddress = fromAddressInput.value.trim(); // Read the fromAddress
         const toAddress = toAddressInput.value.trim();
         const amount = amountInput.value.trim();
         const network = networkSelect.value;
@@ -63,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({
                     privateKey: privateKey,
+                    fromAddress: fromAddress, // Add fromAddress to the request body
                     toAddress: toAddress,
                     amount: parseInt(amount),
                     network_name: network
