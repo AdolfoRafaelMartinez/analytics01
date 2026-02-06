@@ -5,7 +5,6 @@
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --watch --ext 'ts,json' --exec 'npm run build && npm run start'",
     "build": "tsc && cp -r src/views dist/ && cp -r public dist/",
     "start": "node dist/server.js",
     "debug": "nodemon --watch 'src/**/*.ts' --exec 'node --loader ts-node/esm src/server.ts'"
@@ -16,7 +15,7 @@
   "dependencies": {
     "@types/axios": "^0.9.36",
     "@types/bip32": "^1.0.2",
-    
+
     "axios": "^1.13.4",
     "bip32": "^4.0.0",
     "bip39": "^3.1.0",
