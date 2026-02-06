@@ -13,6 +13,6 @@ router.get('/transfer-p2pkh', (req, res) => {
 router.post('/api/get-address-from-private-key', getAddressFromPrivateKey);
 
 // API route for the transaction
-router.post('/transfer-btc-p2pkh', transferBtcP2pkh);
+router.post('/api/transfer-p2pkh', transferBtcP2pkh);
 
 export default router;
