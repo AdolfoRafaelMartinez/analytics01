@@ -18,8 +18,8 @@ app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', join(__dirname, 'views'));
 
-// Serve static files from 'public' inside the 'dist' folder
-app.use(express.static(join(__dirname, 'public')));
+// Serve static files from the project's 'public' directory
+app.use(express.static(join(__dirname, '..', 'public')));
 
 // Use the new routers
 app.use('/', mainRoutes);
