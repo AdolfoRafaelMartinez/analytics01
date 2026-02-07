@@ -25,7 +25,11 @@
     <% } %>
 
     <% if (typeof fee !== 'undefined' && fee !== null) { %>
-        <p>Fee: <%= fee %> BTC</p>
+        <p>Fee: <%= fee %> satoshis</p>
+    <% } %>
+
+    <% if (typeof eta !== 'undefined' && eta !== null) { %>
+        <p>ETA: <%= eta %></p>
     <% } %>
 
     <% if (typeof error !== 'undefined' && error) { %>

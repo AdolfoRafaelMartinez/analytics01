@@ -5,7 +5,8 @@
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
-    "dev": "tsc && cp -r src/views dist/ && cp -r public dist/ && node dist/server.js",
+    "build": "tsc && cp -r src/views dist/ && cp -r public dist/",
+    "dev": "npm run build && node dist/server.js",
     "start": "node dist/server.js",
     "debug": "nodemon --watch 'src/**/*.ts' --exec 'node --loader ts-node/esm src/server.ts'"
   },

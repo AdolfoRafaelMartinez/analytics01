@@ -103,7 +103,7 @@ export const getBalance = async (address: string, network: string): Promise<numb
     return balanceInBtc;
 };
 
-export const getTransactionStatus = async (txid: string, network: string): Promise<{ confirmations: number; fee: number; }> => {
+export const getTransactionStatus = async (txid: string, network: string): Promise<{ confirmations: number; fee: number; eta: string; }> => {
     const apiKey = process.env.QUICKNODE_API_KEY;
     if (!apiKey) {
         throw new Error('QUICKNODE_API_KEY is not set.');
@@ -130,10 +130,15 @@ export const getTransactionStatus = async (txid: string, network: string): Promi
     }
     
     if (response.data.result) {
-        const fee = Math.abs(response.data.result.fee || 0);
+        const feeInBtc = Math.abs(response.data.result.fee || 0);
+        const feeInSatoshis = Math.round(feeInBtc * 100000000);
+        const confirmations = response.data.result.confirmations ?? 0;
+        const eta = confirmations > 0 ? 'Confirmed' : '~10 minutes';
+
         return {
-            confirmations: response.data.result.confirmations ?? 0,
-            fee: fee
+            confirmations,
+            fee: feeInSatoshis,
+            eta,
         };
     }
 

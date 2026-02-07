@@ -17,5 +17,5 @@ export const getWifToHexPage = (req: Request, res: Response) => {
 };
 
 export const getConfirmationsPage = (req: Request, res: Response) => {
-    res.render('confirmations', { transactionId: '', confirmations: null, fee: null, error: null });
+    res.render('confirmations', { transactionId: '', confirmations: null, fee: null, eta: null, error: null });
 };

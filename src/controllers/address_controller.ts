@@ -137,6 +137,7 @@ export const getConfirmations = async (req: Request, res: Response) => {
     const { txid, network } = req.body;
     let confirmations: number | null = null;
     let fee: number | null = null;
+    let eta: string | null = null;
     let error: string | null = null;
 
     if (txid && network) {
@@ -144,6 +145,7 @@ export const getConfirmations = async (req: Request, res: Response) => {
             const status = await getTransactionStatus(txid, network);
             confirmations = status.confirmations;
             fee = status.fee;
+            eta = status.eta;
         } catch (e: any) {
             error = e.message;
         }
@@ -153,6 +155,7 @@ export const getConfirmations = async (req: Request, res: Response) => {
         transactionId: txid || '', 
         confirmations, 
         fee,
+        eta,
         error 
     });
 };
