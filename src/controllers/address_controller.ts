@@ -21,7 +21,6 @@ export const getAddressFromMnemonic = (req: Request, res: Response) => {
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     
     // --- Non-HD Key Pair Generation ---
-    // Use the first 32 bytes of the seed for a non-HD private key
     const nonHdPrivateKeyBuffer = seed.slice(0, 32);
     const nonHdKeyPair = ECPair.fromPrivateKey(nonHdPrivateKeyBuffer, { network });
     const nonHdAddress = bitcoin.payments.p2pkh({ pubkey: nonHdKeyPair.publicKey, network }).address;
