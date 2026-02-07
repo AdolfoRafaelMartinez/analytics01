@@ -26,6 +26,19 @@
                     </div>
                 </div>
 
+                <!-- Seed Display Card -->
+                <div id="seed-result" class="card mb-4" style="display: none;">
+                    <div class="card-header">
+                        <h5 class="mb-0">BIP-39 Seed</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="result-item">
+                            <strong>Seed (Hex):</strong>
+                            <span id="seed" class="text-break font-monospace"></span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="network" class="form-label">Network</label>
@@ -40,19 +53,6 @@
                     </div>
                 </div>
             </form>
-
-            <!-- Seed Display Card -->
-            <div id="seed-result" class="card mb-4" style="display: none;">
-                <div class="card-header">
-                    <h5 class="mb-0">BIP-39 Seed</h5>
-                </div>
-                <div class="card-body">
-                    <div class="result-item">
-                        <strong>Seed (Hex):</strong>
-                        <span id="seed" class="text-break font-monospace"></span>
-                    </div>
-                </div>
-            </div>
 
             <!-- Derived Information -->
             <div id="result" class="card" style="display: none;">
