@@ -1,18 +1,7 @@
 import { Request, Response } from 'express';
 
 export const getHomePage = (req: Request, res: Response) => {
-    res.render('home');
-};
-
-export const getWalletPage = (req: Request, res: Response) => {
-    const data = {
-        mnemonic: ''
-    };
-    res.render('index', data);
-};
-
-export const getWifToHexPage = (req: Request, res: Response) => {
-    res.render('wif-to-hex');
+    res.render('index'); 
 };
 
 export const getMnemonicToPrivateKeyPage = (req: Request, res: Response) => {
@@ -20,5 +9,9 @@ export const getMnemonicToPrivateKeyPage = (req: Request, res: Response) => {
 };
 
 export const getPrivateKeyToAddressPage = (req: Request, res: Response) => {
-    res.render('private-key-to-address', { address: null, error: null });
+    res.render('private-key-to-address');
+};
+
+export const getWifToHexPage = (req: Request, res: Response) => {
+    res.render('wif-to-hex');
 };

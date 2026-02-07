@@ -43,18 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const path = pathInput.value.trim();
-        const pathParts = path.split('/');
-        if (pathParts.length > 2) {
-            const coinType = pathParts[2];
-            if (coinType === "0'" && networkSelect.value !== 'mainnet') {
-                networkSelect.value = 'mainnet';
-            } else if (coinType === "1'" && networkSelect.value !== 'testnet') {
-                networkSelect.value = 'testnet';
-            }
-        }
-        
         const network = networkSelect.value;
-        const mempoolUrl = network === 'mainnet' ? 'https://mempool.space/address' : 'https://mempool.space/testnet/address';
+
+        let mempoolUrl;
+        if (network === 'mainnet') {
+            mempoolUrl = 'https://mempool.space/address';
+        } else if (network === 'testnet4') {
+            mempoolUrl = 'https://mempool.space/testnet4/address';
+        } else {
+            mempoolUrl = 'https://mempool.space/testnet/address';
+        }
 
         try {
             const response = await fetch('/mnemonic-to-private-key', {
@@ -102,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const network = networkSelect.value;
         if (network === 'mainnet') {
             pathInput.value = "m/44'/0'/0'/0/0";
-        } else { // testnet
+        } else { // for testnet and testnet4
             pathInput.value = "m/44'/1'/0'/0/0";
         }
         deriveAndDisplayKeys();

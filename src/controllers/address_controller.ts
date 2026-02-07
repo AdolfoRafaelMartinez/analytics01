@@ -10,6 +10,22 @@ import { BIP32Factory } from 'bip32';
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
 
+// Define a network object for testnet4, which is compatible with bitcoinjs-lib's testnet for P2PKH
+const testnet4 = { ...bitcoin.networks.testnet };
+
+const getNetwork = (networkName?: string) => {
+    switch (networkName) {
+        case 'mainnet':
+            return bitcoin.networks.bitcoin;
+        case 'testnet':
+            return bitcoin.networks.testnet;
+        case 'testnet4':
+            return testnet4;
+        default:
+            return bitcoin.networks.testnet; // Default to testnet
+    }
+};
+
 export const getAddressFromMnemonic = (req: Request, res: Response) => {
     const { mnemonic, network_name, path: derivationPath } = req.body;
 
@@ -17,7 +33,7 @@ export const getAddressFromMnemonic = (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Invalid mnemonic phrase provided.' });
     }
 
-    const network = network_name === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
+    const network = getNetwork(network_name);
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     
     // --- Non-HD Key Pair Generation ---
@@ -69,7 +85,7 @@ export const getAddressFromMnemonic = (req: Request, res: Response) => {
 
 export const getAddressFromPrivateKey = (req: Request, res: Response) => {
     const { privateKey, network_name } = req.body;
-    const network = network_name === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
+    const network = getNetwork(network_name);
 
     try {
         const keyPair = ECPair.fromWIF(privateKey, network);
@@ -82,7 +98,7 @@ export const getAddressFromPrivateKey = (req: Request, res: Response) => {
 
 export const postPrivateKeyToAddressPage = (req: Request, res: Response) => {
     const { privateKey, network_name } = req.body;
-    const network = network_name === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
+    const network = getNetwork(network_name);
     let address = null;
     let error = null;
 
@@ -103,7 +119,7 @@ export const convertWifToHex = (req: Request, res: Response) => {
         return res.status(400).json({ error: 'WIF key is required' });
     }
     try {
-        const network = network_name === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
+        const network = getNetwork(network_name);
         const keyPair = ECPair.fromWIF(wif, network);
         if (keyPair.privateKey) {
             const hex = keyPair.privateKey.toString('hex');
@@ -114,10 +130,4 @@ export const convertWifToHex = (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(400).json({ error: 'Invalid WIF key' });
     }
-};
-
-
-export const createWallet = (req: Request, res: Response) => {
-    const mnemonic = bip39.generateMnemonic();
-    res.json({ mnemonic });
 };

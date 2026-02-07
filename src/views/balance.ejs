@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Balance</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Check Bitcoin Address Balance</h1>
+        <form id="balance-form">
+            <div class="form-group">
+                <label for="address">Bitcoin Address</label>
+                <input type="text" id="address" name="address" required>
+            </div>
+            <div class="form-group">
+                <label for="network">Network</label>
+                <select id="network" name="network">
+                    <option value="testnet">Testnet</option>
+                    <option value="mainnet">Mainnet</option>
+                </select>
+            </div>
+            <button type="submit">Check Balance</button>
+        </form>
+        <div id="result-container" style="display: none;">
+            <h2>Balance</h2>
+            <p id="balance-result"></p>
+        </div>
+        <div id="error-container" style="display: none;">
+            <h2>Error</h2>
+            <p id="error-message"></p>
+        </div>
+        <a href="/">Back to Home</a>
+    </div>
+    <script src="/js/balance_ui.js"></script>
+</body>
+</html>

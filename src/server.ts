@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import mainRoutes from './routes/main_routes.js';
 import p2pkhRoutes from './routes/p2pkh_routes.js';
+import balanceRoutes from './routes/balance_routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,6 +25,7 @@ app.use(express.static(join(__dirname, '..', 'public')));
 // Use the new routers
 app.use('/', mainRoutes);
 app.use('/', p2pkhRoutes);
+app.use('/', balanceRoutes);
 
 app.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);

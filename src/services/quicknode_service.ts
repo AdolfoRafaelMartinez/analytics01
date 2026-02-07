@@ -65,3 +65,40 @@ export const getTxHex = async (txid: string) => {
     });
     return response.data.result;
 };
+
+export const getBalance = async (address: string, network: string): Promise<number> => {
+    const apiKey = process.env.QUICKNODE_API_KEY;
+    if (!apiKey) {
+        throw new Error('QUICKNODE_API_KEY is not set. Please add it to your .env file.');
+    }
+
+    let url: string;
+    if (network === 'testnet') {
+        url = `https://wispy-muddy-mound.btc-testnet4.quiknode.pro/${apiKey}/`;
+    } else if (network === 'mainnet') {
+        // IMPORTANT: You will need a QuickNode mainnet endpoint for this to work.
+        // Replace 'your-mainnet-endpoint' with your actual endpoint ID.
+        url = `https://your-mainnet-endpoint.btc.quiknode.pro/${apiKey}/`;
+    } else {
+        throw new Error(`Unsupported network: ${network}. Please use 'mainnet' or 'testnet'.`);
+    }
+
+
+    const response = await axios.post<BlockbookResponse>(url, {
+        method: 'bb_getUTXOs',
+        params: [address, { confirmed: true }],
+        id: 1,
+        jsonrpc: '2.0'
+    });
+
+    const utxosFromBlockbook = response.data.result;
+
+    if (!utxosFromBlockbook) {
+        return 0;
+    }
+
+    const totalSatoshis = utxosFromBlockbook.reduce((acc, utxo) => acc + parseInt(utxo.value, 10), 0);
+    const balanceInBtc = totalSatoshis / 100000000;
+
+    return balanceInBtc;
+};

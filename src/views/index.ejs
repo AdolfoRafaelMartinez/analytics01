@@ -12,61 +12,10 @@
             <h1>Bitcoin Wallet</h1>
         </div>
         <p>A simple Bitcoin wallet for educational purposes.</p>
-
-        <div class="main-content">
-            <h3>1. Select Network</h3>
-            <div class="input-group">
-                <label for="network-select">Network:</label>
-                <select id="network-select">
-                    <option value="testnet" selected>Testnet</option>
-                    <option value="testnet2">Testnet2</option>
-                    <option value="testnet3">Testnet3</option>
-                    <option value="testnet4">Testnet4</option>
-                    <option value="mainnet">Mainnet</option>
-                </select>
-            </div>
-            <hr>
-            <h3>2. Coin Type</h3>
-            <div class="input-group">
-                <label for="coin-type-select">Coin Type:</label>
-                <select id="coin-type-select" disabled>
-                    <option value="1" selected>Testnet (BTC)</option>
-                </select>
-            </div>
-            <hr>
-            <h3>3. Choose or Input a Mnemonic</h3>
-            <div class='input-group'>
-                <label for="mnemonic-input">Mnemonic:</label>
-                <input type="text" id="mnemonic-input" value="<%= mnemonic %>" placeholder="Enter your 12 or 24-word mnemonic phrase">
-            </div>
-            <div class="button-container">
-                <button id="generateMnemonicButton">Generate New Mnemonic</button>
-            </div>
-            <hr>
-            <div class="generate-load-container">
-                <div class="generate-wallet-section">
-                    <h3>4. Save & Generate Keys</h3>
-                    <button id="useMnemonicButton">Generate Keys</button>
-                </div>
-                <div class="vertical-separator"></div>
-            </div>
-            <hr>
-            <div class="load-wallet-section">
-                <h3>Or Load an Existing Wallet</h3>
-                <input type="file" id="load-input" accept=".txt,.json">
-            </div>
-        </div>
-
-        <!-- Results section -->
-        <div id="result" style="display:none;">
-            <h2>Derived Information</h2>
-            <p><strong>Private Key (Hex):</strong> <span id="privateKeyHex"></span></p>
-            <p><strong>Private Key (WIF):</strong> <span id="privateKeyWIF"></span></p>
-            <p><strong>Public Key:</strong> <span id="publicKey"></span></p>
-            <p><strong>Address:</strong> <span id="address"></span></p>
-        </div>
+        <ul>
+            <li><a href="/mnemonic-to-private-key">Mnemonic to Keys & Address</a></li>
+            <li><a href="/balance">Check Address Balance</a></li>
+        </ul>
     </div>
-
-    <script src="js/mnemonic_ui.js"></script>
 </body>
 </html>
