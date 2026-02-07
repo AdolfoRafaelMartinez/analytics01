@@ -13,22 +13,21 @@ const bip32 = BIP32Factory(ecc);
 export const getAddressFromMnemonic = (req: Request, res: Response) => {
     const { mnemonic, network_name, path: derivationPath } = req.body;
 
-    // Validate the mnemonic phrase before proceeding
     if (!mnemonic || !bip39.validateMnemonic(mnemonic)) {
         return res.status(400).json({ error: 'Invalid mnemonic phrase provided.' });
     }
 
     const network = network_name === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
-
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     const root = bip32.fromSeed(seed, network);
 
-    // Ensure the master private key was derived
     if (!root.privateKey) {
         return res.status(500).json({ error: 'Could not generate master private key from seed.' });
     }
+    
+    // Derive the master address
+    const { address: masterAddress } = bitcoin.payments.p2pkh({ pubkey: root.publicKey, network });
 
-    // Derive the master keys
     const masterPrivateKey = root.privateKey.toString('hex');
     const masterPublicKey = root.publicKey.toString('hex');
 
@@ -39,17 +38,17 @@ export const getAddressFromMnemonic = (req: Request, res: Response) => {
         return res.status(500).json({ error: 'Could not derive child private key for the given path.' });
     }
 
-    const { address } = bitcoin.payments.p2pkh({ pubkey: child.publicKey, network });
+    const { address: childAddress } = bitcoin.payments.p2pkh({ pubkey: child.publicKey, network });
 
-    // Send all keys back in the response
     res.json({ 
-        address,
+        address: childAddress,
         privateKey: child.toWIF(),
         privateKeyHex: child.privateKey.toString('hex'),
         publicKey: child.publicKey.toString('hex'),
         seed: seed.toString('hex'),
-        masterPrivateKey, // Now included
-        masterPublicKey   // Now included
+        masterPrivateKey,
+        masterPublicKey,
+        masterAddress // Now included
     });
 };
 

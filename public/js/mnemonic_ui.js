@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Master key elements
     const masterPrivateKeySpan = document.getElementById('masterPrivateKey');
     const masterPublicKeySpan = document.getElementById('masterPublicKey');
+    const masterAddressSpan = document.getElementById('masterAddress');
 
     // Child key elements
     const childPrivateKeyHexSpan = document.getElementById('privateKeyHex');
@@ -55,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             seedSpan.textContent = data.seed;
             masterPrivateKeySpan.textContent = data.masterPrivateKey;
             masterPublicKeySpan.textContent = data.masterPublicKey;
+            masterAddressSpan.textContent = data.masterAddress;
             childPrivateKeyWIFSpan.textContent = data.privateKey;
             childPrivateKeyHexSpan.textContent = data.privateKeyHex;
             addressSpan.textContent = data.address;

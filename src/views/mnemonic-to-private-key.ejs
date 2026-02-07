@@ -26,49 +26,7 @@
                     </div>
                 </div>
 
-                <!-- Seed Display Card -->
-                <div id="seed-result" class="card mb-4" style="display: none;">
-                    <div class="card-header">
-                        <h5 class="mb-0">BIP-39</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="result-item">
-                            <strong>Seed (Hex):</strong>
-                            <span id="seed" class="text-break font-monospace"></span>
-                        </div>
-                        <div class="result-item">
-                            <strong>Master Private Key (Hex):</strong>
-                            <span id="masterPrivateKey" class="text-break font-monospace"></span>
-                        </div>
-                        <div class="result-item">
-                            <strong>Master Public Key (Hex):</strong>
-                            <span id="masterPublicKey" class="text-break font-monospace"></span>
-                        </div>
-                    </div>
-                </div>
-            </form>
-
-            <!-- Derived Information -->
-            <div id="result" class="card" style="display: none;">
-                <div class="card-header">
-                    <h5 class="mb-0">Derived HD Wallet Keys</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="path" class="form-label">Derivation Path</label>
-                            <input type="text" id="path" class="form-control" value="m/44'/1'/0'/0/0">
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="result-item">
-                        <strong>Child Private Key (Hex):</strong>
-                        <span id="privateKeyHex" class="text-break font-monospace"></span>
-                    </div>
-                    <div class="result-item">
-                        <strong>Child Public Key:</strong>
-                        <span id="publicKey" class="text-break font-monospace"></span>
-                    </div>
+                <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="network" class="form-label">Network</label>
                         <select id="network" class="form-select">
@@ -76,9 +34,56 @@
                             <option value="testnet" selected>Testnet</option>
                         </select>
                     </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="path" class="form-label">Derivation Path</label>
+                        <input type="text" id="path" class="form-control" value="m/44'/1'/0'/0/0">
+                    </div>
+                </div>
+            </form>
+
+            <!-- Seed Display Card -->
+            <div id="seed-result" class="card mb-4" style="display: none;">
+                <div class="card-header">
+                    <h5 class="mb-0">BIP-39 Seed</h5>
+                </div>
+                <div class="card-body">
+                    <div class="result-item">
+                        <strong>Seed (Hex):</strong>
+                        <span id="seed" class="text-break font-monospace"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Derived Information -->
+            <div id="result" class="card" style="display: none;">
+                <div class="card-header">
+                    <h5 class="mb-0">Derived HD Wallet Keys</h5>
+                </div>
+                <div class="card-body">
+                    <div class="result-item">
+                        <strong>Master Private Key (Hex):</strong>
+                        <span id="masterPrivateKey" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Master Public Key (Hex):</strong>
+                        <span id="masterPublicKey" class="text-break font-monospace"></span>
+                    </div>
+                     <div class="result-item">
+                        <strong>Master Address:</strong>
+                        <span id="masterAddress" class="text-break font-monospace"></span>
+                    </div>
+                    <hr>
                     <div class="result-item">
                         <strong>Child Private Key (WIF):</strong>
                         <span id="privateKeyWIF" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Child Private Key (Hex):</strong>
+                        <span id="privateKeyHex" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Child Public Key:</strong>
+                        <span id="publicKey" class="text-break font-monospace"></span>
                     </div>
                     <div class="result-item">
                         <strong>Address:</strong>
