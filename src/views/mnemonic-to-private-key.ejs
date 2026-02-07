@@ -54,8 +54,34 @@
                 </div>
             </div>
 
+            <!-- Non-HD Wallet Information -->
+            <div id="non-hd-result" class="card mb-4" style="display: none;">
+                <div class="card-header">
+                    <h5 class="mb-0">Non-HD Wallet</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-2">Derived directly from the first 32 bytes of the BIP-39 seed.</p>
+                    <div class="result-item">
+                        <strong>Private Key (WIF):</strong>
+                        <span id="nonHdPrivateKeyWIF" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Private Key (Hex):</strong>
+                        <span id="nonHdPrivateKeyHex" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Public Key (Hex):</strong>
+                        <span id="nonHdPublicKey" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Address:</strong>
+                        <span id="nonHdAddress" class="text-break font-monospace"></span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Derived HD Information -->
-            <div id="hd-result" class="card mb-4" style="display: none;">
+            <div id="hd-result" class="card" style="display: none;">
                 <div class="card-header">
                     <h5 class="mb-0">Derived HD Wallet (BIP-32)</h5>
                 </div>
@@ -89,32 +115,6 @@
                     <div class="result-item">
                         <strong>Child Address:</strong>
                         <span id="address" class="text-break font-monospace"></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Non-HD Wallet Information -->
-            <div id="non-hd-result" class="card" style="display: none;">
-                <div class="card-header">
-                    <h5 class="mb-0">Non-HD Wallet</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted mb-2">Derived directly from the first 32 bytes of the BIP-39 seed.</p>
-                    <div class="result-item">
-                        <strong>Private Key (WIF):</strong>
-                        <span id="nonHdPrivateKeyWIF" class="text-break font-monospace"></span>
-                    </div>
-                    <div class="result-item">
-                        <strong>Private Key (Hex):</strong>
-                        <span id="nonHdPrivateKeyHex" class="text-break font-monospace"></span>
-                    </div>
-                    <div class="result-item">
-                        <strong>Public Key (Hex):</strong>
-                        <span id="nonHdPublicKey" class="text-break font-monospace"></span>
-                    </div>
-                    <div class="result-item">
-                        <strong>Address:</strong>
-                        <span id="nonHdAddress" class="text-break font-monospace"></span>
                     </div>
                 </div>
             </div>
