@@ -93,4 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mnemonicInput.addEventListener('input', debouncedDerive);
     pathInput.addEventListener('input', debouncedDerive);
     networkSelect.addEventListener('change', deriveAndDisplayKeys);
+    
+    // Automatically derive keys on page load
+    deriveAndDisplayKeys();
 });
