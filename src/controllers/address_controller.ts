@@ -19,15 +19,21 @@ export const getAddressFromMnemonic = (req: Request, res: Response) => {
 
     const network = network_name === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
     const seed = bip39.mnemonicToSeedSync(mnemonic);
+    
+    // --- Non-HD Key Pair Generation ---
+    // Use the first 32 bytes of the seed for a non-HD private key
+    const nonHdPrivateKeyBuffer = seed.slice(0, 32);
+    const nonHdKeyPair = ECPair.fromPrivateKey(nonHdPrivateKeyBuffer, { network });
+    const nonHdAddress = bitcoin.payments.p2pkh({ pubkey: nonHdKeyPair.publicKey, network }).address;
+
+    // --- HD Wallet (BIP-32) Derivation ---
     const root = bip32.fromSeed(seed, network);
 
     if (!root.privateKey) {
         return res.status(500).json({ error: 'Could not generate master private key from seed.' });
     }
     
-    // Derive the master address
     const { address: masterAddress } = bitcoin.payments.p2pkh({ pubkey: root.publicKey, network });
-
     const masterPrivateKey = root.privateKey.toString('hex');
     const masterPublicKey = root.publicKey.toString('hex');
 
@@ -41,14 +47,23 @@ export const getAddressFromMnemonic = (req: Request, res: Response) => {
     const { address: childAddress } = bitcoin.payments.p2pkh({ pubkey: child.publicKey, network });
 
     res.json({ 
+        // HD Child Key
         address: childAddress,
         privateKey: child.toWIF(),
         privateKeyHex: child.privateKey.toString('hex'),
         publicKey: child.publicKey.toString('hex'),
         seed: seed.toString('hex'),
+        
+        // HD Master Key
         masterPrivateKey,
         masterPublicKey,
-        masterAddress // Now included
+        masterAddress,
+
+        // Non-HD Key
+        nonHdAddress: nonHdAddress,
+        nonHdPrivateKeyWIF: nonHdKeyPair.toWIF(),
+        nonHdPrivateKeyHex: nonHdPrivateKeyBuffer.toString('hex'),
+        nonHdPublicKey: nonHdKeyPair.publicKey.toString('hex')
     });
 };
 
