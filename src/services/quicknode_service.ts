@@ -17,11 +17,11 @@ interface BlockbookUtxo {
 }
 
 interface BlockbookResponse {
-    result: BlockbookUtxo[];
+    result: BlockbookUtxo[] | null;
+    error: any;
 }
 
 export const getUtxos = async (address: string): Promise<Utxo[]> => {
-    // 1. Get the list of UTXOs from Blockbook
     const response = await axios.post<BlockbookResponse>(QN_BTC_URL, {
         method: 'bb_getUTXOs',
         params: [address, { confirmed: true }],
@@ -29,12 +29,18 @@ export const getUtxos = async (address: string): Promise<Utxo[]> => {
         jsonrpc: '2.0'
     });
 
+    if (response.data.error) {
+        throw new Error(`Failed to get UTXOs: ${response.data.error.message}`);
+    }
+    
+    // Handle case where no UTXOs are found
     const utxosFromBlockbook = response.data.result;
+    if (!utxosFromBlockbook) {
+        return [];
+    }
 
-    // 2. For each UTXO, fetch the full transaction hex
     const utxos = await Promise.all(utxosFromBlockbook.map(async (utxo) => {
         const txHex = await getTxHex(utxo.txid);
-        // 3. Construct the final Utxo object in the expected format
         return {
             txid: utxo.txid,
             vout: utxo.vout,
@@ -46,25 +52,41 @@ export const getUtxos = async (address: string): Promise<Utxo[]> => {
     return utxos;
 };
 
-export const broadcastTransaction = async (txHex: string) => {
+export const broadcastTransaction = async (txHex: string): Promise<string> => {
     const response = await axios.post<SendRawTransactionResponse>(QN_BTC_URL, {
         method: 'sendrawtransaction',
         params: [txHex],
         id: 1,
         jsonrpc: '2.0'
     });
+
+    if (response.data.error) {
+        throw new Error(`Failed to broadcast transaction: ${response.data.error.message}`);
+    }
+
+    if (!response.data.result) {
+        throw new Error('Broadcast failed: Node did not return a transaction hash.');
+    }
+
     return response.data.result;
 };
 
-export const getTxHex = async (txid: string) => {
+export const getTxHex = async (txid: string): Promise<string> => {
     const response = await axios.post<GetRawTransactionResponse>(QN_BTC_URL, {
         method: 'getrawtransaction',
         params: [txid],
         id: 1,
         jsonrpc: '2.0'
     });
+    if (response.data.error) {
+        throw new Error(`Failed to get raw transaction ${txid}: ${response.data.error.message}`);
+    }
+    if (!response.data.result) {
+        throw new Error(`No result for raw transaction ${txid}`);
+    }
     return response.data.result;
 };
+
 
 export const getBalance = async (address: string, network: string): Promise<number> => {
     const apiKey = process.env.QUICKNODE_API_KEY;

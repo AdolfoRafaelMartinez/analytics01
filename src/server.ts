@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const port = parseInt(process.env.PORT || process.argv[3] || '8080', 10);
+const port = parseInt(process.env.PORT || process.argv[2] || '8080', 10);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

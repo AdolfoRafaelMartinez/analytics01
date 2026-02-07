@@ -63,7 +63,7 @@ export const transferBtcP2pkh = async (req: Request, res: Response) => {
         const txHex = psbt.extractTransaction().toHex();
         const txHash = await broadcastTransaction(txHex);
 
-        res.json({ txHash });
+        res.json({ txid: txHash });
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
