@@ -6,6 +6,9 @@ import { getUtxos, broadcastTransaction, getTxHex } from '../services/quicknode_
 
 const ECPair = ECPairFactory(ecc);
 
+// Define the dust threshold for P2PKH outputs in satoshis
+const DUST_THRESHOLD = BigInt(546);
+
 export const transferBtcP2pkh = async (req: Request, res: Response) => {
     const { fromAddress, toAddress, amount, privateKey } = req.body;
     const network = bitcoin.networks.testnet;
@@ -50,7 +53,7 @@ export const transferBtcP2pkh = async (req: Request, res: Response) => {
         psbt.addOutput({ address: toAddress, value: amountInSatoshis });
 
         const change = totalInput - amountInSatoshis - fee;
-        if (change > 0) {
+        if (change > DUST_THRESHOLD) {
             psbt.addOutput({ address: fromAddress, value: change });
         }
 
