@@ -5,6 +5,7 @@ import * as bip39 from 'bip39';
 import * as ecc from 'tiny-secp256k1';
 import ECPairFactory from 'ecpair';
 import { BIP32Factory } from 'bip32';
+import { getTransactionStatus } from '../services/quicknode_service.js';
 
 // Initialize the libraries
 const ECPair = ECPairFactory(ecc);
@@ -130,4 +131,25 @@ export const convertWifToHex = (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(400).json({ error: 'Invalid WIF key' });
     }
+};
+
+export const getConfirmations = async (req: Request, res: Response) => {
+    const { txid, network } = req.body;
+    let confirmations: number | null = null;
+    let error: string | null = null;
+
+    if (txid && network) {
+        try {
+            const status = await getTransactionStatus(txid, network);
+            confirmations = status.confirmations;
+        } catch (e: any) {
+            error = e.message;
+        }
+    }
+
+    res.render('confirmations', { 
+        transactionId: txid || '', 
+        confirmations, 
+        error 
+    });
 };

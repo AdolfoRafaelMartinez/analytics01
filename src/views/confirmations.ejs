@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transaction Confirmations</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Check Transaction Confirmations</h1>
+    <form action="/confirmations" method="POST">
+        <label for="txid">Transaction ID:</label>
+        <input type="text" id="txid" name="txid" value="<%= transactionId %>" required>
+        
+        <label for="network">Network:</label>
+        <select id="network" name="network">
+            <option value="testnet">Testnet</option>
+            <option value="mainnet">Mainnet</option>
+        </select>
+
+        <button type="submit">Check Confirmations</button>
+    </form>
+
+    <% if (confirmations !== null) { %>
+        <p>Confirmations: <%= confirmations %></p>
+    <% } %>
+
+    <% if (error) { %>
+        <p class="error">Error: <%= error %></p>
+    <% } %>
+
+    <a href="/">Back to Home</a>
+</body>
+</html>

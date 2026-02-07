@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Utxo, SendRawTransactionResponse, GetRawTransactionResponse } from '../types/quicknode.js';
+import { Utxo, SendRawTransactionResponse, GetRawTransactionResponse, GetRawTransactionVerboseResponse } from '../types/quicknode.js';
 
 const QUICKNODE_API_KEY = process.env.QUICKNODE_API_KEY;
 
@@ -101,4 +101,40 @@ export const getBalance = async (address: string, network: string): Promise<numb
     const balanceInBtc = totalSatoshis / 100000000;
 
     return balanceInBtc;
+};
+
+export const getTransactionStatus = async (txid: string, network: string): Promise<{ confirmations: number }> => {
+    const apiKey = process.env.QUICKNODE_API_KEY;
+    if (!apiKey) {
+        throw new Error('QUICKNODE_API_KEY is not set.');
+    }
+
+    let url: string;
+    if (network === 'testnet') {
+        url = `https://wispy-muddy-mound.btc-testnet4.quiknode.pro/${apiKey}/`;
+    } else if (network === 'mainnet') {
+        url = `https://your-mainnet-endpoint.btc.quiknode.pro/${apiKey}/`;
+    } else {
+        throw new Error(`Unsupported network: ${network}. Please use 'mainnet' or 'testnet'.`);
+    }
+
+    const response = await axios.post<GetRawTransactionVerboseResponse>(url, {
+        method: 'getrawtransaction',
+        params: [txid, true], // Verbose output to get confirmations
+        id: 1,
+        jsonrpc: '2.0'
+    });
+
+    if (response.data.error) {
+        throw new Error(response.data.error.message || 'Error fetching transaction from node.');
+    }
+    
+    if (response.data.result) {
+        // A transaction in the mempool has 0 confirmations. 
+        // A confirmed transaction has 1 or more.
+        // If confirmations is undefined, it's likely 0 (in mempool).
+        return { confirmations: response.data.result.confirmations ?? 0 };
+    }
+
+    throw new Error('Transaction not found.');
 };

@@ -15,3 +15,7 @@ export const getPrivateKeyToAddressPage = (req: Request, res: Response) => {
 export const getWifToHexPage = (req: Request, res: Response) => {
     res.render('wif-to-hex');
 };
+
+export const getConfirmationsPage = (req: Request, res: Response) => {
+    res.render('confirmations', { transactionId: '', confirmations: null, error: null });
+};
