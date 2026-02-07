@@ -14,17 +14,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // HD Wallet Elements
     const masterPrivateKeySpan = document.getElementById('masterPrivateKey');
     const masterPublicKeySpan = document.getElementById('masterPublicKey');
-    const masterAddressSpan = document.getElementById('masterAddress');
+    const masterAddressLink = document.getElementById('masterAddress');
     const childPrivateKeyWIFSpan = document.getElementById('privateKeyWIF');
     const childPrivateKeyHexSpan = document.getElementById('privateKeyHex');
     const childPublicKeySpan = document.getElementById('publicKey');
-    const addressSpan = document.getElementById('address');
+    const addressLink = document.getElementById('address');
 
     // Non-HD Wallet Elements
     const nonHdPrivateKeyWIFSpan = document.getElementById('nonHdPrivateKeyWIF');
     const nonHdPrivateKeyHexSpan = document.getElementById('nonHdPrivateKeyHex');
     const nonHdPublicKeySpan = document.getElementById('nonHdPublicKey');
-    const nonHdAddressSpan = document.getElementById('nonHdAddress');
+    const nonHdAddressLink = document.getElementById('nonHdAddress');
 
     let debounceTimer;
 
@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // --- Sync network dropdown from path input ---
         const path = pathInput.value.trim();
         const pathParts = path.split('/');
         if (pathParts.length > 2) {
@@ -55,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const network = networkSelect.value;
+        const mempoolUrl = network === 'mainnet' ? 'https://mempool.space/address' : 'https://mempool.space/testnet/address';
 
         try {
             const response = await fetch('/mnemonic-to-private-key', {
@@ -70,24 +70,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            // Populate Seed
             seedSpan.textContent = data.seed;
 
-            // Populate HD Wallet
             derivationPathDisplay.textContent = path;
             masterPrivateKeySpan.textContent = data.masterPrivateKey;
             masterPublicKeySpan.textContent = data.masterPublicKey;
-            masterAddressSpan.textContent = data.masterAddress;
+            masterAddressLink.textContent = data.masterAddress;
+            masterAddressLink.href = `${mempoolUrl}/${data.masterAddress}`;
+            
             childPrivateKeyWIFSpan.textContent = data.privateKey;
             childPrivateKeyHexSpan.textContent = data.privateKeyHex;
             childPublicKeySpan.textContent = data.publicKey;
-            addressSpan.textContent = data.address;
+            addressLink.textContent = data.address;
+            addressLink.href = `${mempoolUrl}/${data.address}`;
 
-            // Populate Non-HD Wallet
             nonHdPrivateKeyWIFSpan.textContent = data.nonHdPrivateKeyWIF;
             nonHdPrivateKeyHexSpan.textContent = data.nonHdPrivateKeyHex;
             nonHdPublicKeySpan.textContent = data.nonHdPublicKey;
-            nonHdAddressSpan.textContent = data.nonHdAddress;
+            nonHdAddressLink.textContent = data.nonHdAddress;
+            nonHdAddressLink.href = `${mempoolUrl}/${data.nonHdAddress}`;
 
             setVisibility(true);
 
@@ -118,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch('/api/create-wallet', { method: 'POST' });
                 const data = await response.json();
                 mnemonicInput.value = data.mnemonic;
-                await handleNetworkChange(); // Use handleNetworkChange to set default path and derive
+                await handleNetworkChange();
             } catch (error) {
                 console.error('Error generating mnemonic:', error);
                 alert('Failed to generate new mnemonic.');
@@ -126,11 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Attach listeners for automatic updates
     mnemonicInput.addEventListener('input', debouncedDerive);
     pathInput.addEventListener('input', debouncedDerive);
     networkSelect.addEventListener('change', handleNetworkChange);
 
-    // Automatically derive keys on page load
     deriveAndDisplayKeys();
 });
