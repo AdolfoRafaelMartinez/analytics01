@@ -1,3 +1,4 @@
+
 import { Request, Response } from 'express';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as bip39 from 'bip39';
@@ -9,32 +10,46 @@ import { BIP32Factory } from 'bip32';
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
 
-// A simple in-memory cache for the wallets
-const walletCache = new Map<string, any>();
-
 export const getAddressFromMnemonic = (req: Request, res: Response) => {
     const { mnemonic, network_name, path: derivationPath } = req.body;
+
+    // Validate the mnemonic phrase before proceeding
+    if (!mnemonic || !bip39.validateMnemonic(mnemonic)) {
+        return res.status(400).json({ error: 'Invalid mnemonic phrase provided.' });
+    }
+
     const network = network_name === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
 
     const seed = bip39.mnemonicToSeedSync(mnemonic);
-    const root = bip32.fromSeed(seed);
-    root.network = network;
+    const root = bip32.fromSeed(seed, network);
 
-    const path = derivationPath || `m/44'/0'/0'/0/0`;
+    // Ensure the master private key was derived
+    if (!root.privateKey) {
+        return res.status(500).json({ error: 'Could not generate master private key from seed.' });
+    }
+
+    // Derive the master keys
+    const masterPrivateKey = root.privateKey.toString('hex');
+    const masterPublicKey = root.publicKey.toString('hex');
+
+    const path = derivationPath || `m/44'/1'/0'/0/0`;
     const child = root.derivePath(path);
 
     if (!child.privateKey) {
-        return res.status(500).json({ error: 'Could not derive private key.' });
+        return res.status(500).json({ error: 'Could not derive child private key for the given path.' });
     }
 
     const { address } = bitcoin.payments.p2pkh({ pubkey: child.publicKey, network });
 
+    // Send all keys back in the response
     res.json({ 
         address,
         privateKey: child.toWIF(),
         privateKeyHex: child.privateKey.toString('hex'),
         publicKey: child.publicKey.toString('hex'),
-        seed: seed.toString('hex')
+        seed: seed.toString('hex'),
+        masterPrivateKey, // Now included
+        masterPublicKey   // Now included
     });
 };
 
