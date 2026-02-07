@@ -1,14 +1,79 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Get all the elements we'll need
     const mnemonicForm = document.getElementById('mnemonicForm');
     const generateMnemonicButton = document.getElementById('generateMnemonicButton');
     const mnemonicInput = document.getElementById('mnemonic');
+    const networkSelect = document.getElementById('network');
+    const pathInput = document.getElementById('path');
 
+    const seedResultDiv = document.getElementById('seed-result');
     const resultDiv = document.getElementById('result');
     const seedSpan = document.getElementById('seed');
-    const privateKeyHexSpan = document.getElementById('privateKeyHex');
-    const privateKeyWIFSpan = document.getElementById('privateKeyWIF');
-    const publicKeySpan = document.getElementById('publicKey');
+    
+    // Master key elements
+    const masterPrivateKeySpan = document.getElementById('masterPrivateKey');
+    const masterPublicKeySpan = document.getElementById('masterPublicKey');
+
+    // Child key elements
+    const childPrivateKeyHexSpan = document.getElementById('privateKeyHex');
+    const childPrivateKeyWIFSpan = document.getElementById('privateKeyWIF');
+    const childPublicKeySpan = document.getElementById('publicKey');
     const addressSpan = document.getElementById('address');
+    
+    let debounceTimer;
+
+    const deriveAndDisplayKeys = async () => {
+        const mnemonic = mnemonicInput.value.trim();
+
+        if (!mnemonic) {
+            if (seedResultDiv) seedResultDiv.style.display = 'none';
+            if (resultDiv) resultDiv.style.display = 'none';
+            return;
+        }
+
+        const network = networkSelect.value;
+        const path = pathInput.value;
+
+        try {
+            const response = await fetch('/mnemonic-to-private-key', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ mnemonic, network_name: network, path })
+            });
+
+            if (!response.ok) {
+                 if (seedResultDiv) seedResultDiv.style.display = 'none';
+                 if (resultDiv) resultDiv.style.display = 'none';
+                 return;
+            }
+
+            const data = await response.json();
+
+            // Populate the fields with the new data
+            seedSpan.textContent = data.seed;
+            masterPrivateKeySpan.textContent = data.masterPrivateKey;
+            masterPublicKeySpan.textContent = data.masterPublicKey;
+            childPrivateKeyWIFSpan.textContent = data.privateKey;
+            childPrivateKeyHexSpan.textContent = data.privateKeyHex;
+            addressSpan.textContent = data.address;
+            childPublicKeySpan.textContent = data.publicKey;
+
+            if (seedResultDiv) seedResultDiv.style.display = 'block';
+            if (resultDiv) resultDiv.style.display = 'block';
+
+        } catch (error) {
+            console.error('Error fetching address:', error);
+            if (seedResultDiv) seedResultDiv.style.display = 'none';
+            if (resultDiv) resultDiv.style.display = 'none';
+        }
+    };
+    
+    const debouncedDerive = () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(deriveAndDisplayKeys, 300);
+    };
 
     if (generateMnemonicButton) {
         generateMnemonicButton.addEventListener('click', async () => {
@@ -16,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch('/api/create-wallet', { method: 'POST' });
                 const data = await response.json();
                 mnemonicInput.value = data.mnemonic;
+                await deriveAndDisplayKeys(); 
             } catch (error) {
                 console.error('Error generating mnemonic:', error);
                 alert('Failed to generate new mnemonic.');
@@ -23,45 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (mnemonicForm) {
-        mnemonicForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Prevent form from submitting the traditional way
-            const mnemonic = mnemonicInput.value.trim();
-            if (!mnemonic) {
-                alert('Please enter or generate a mnemonic phrase.');
-                return;
-            }
-            
-            const network = document.getElementById('network').value;
-            const path = document.getElementById('path').value;
-
-            try {
-                const response = await fetch('/mnemonic-to-private-key', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ mnemonic, network_name: network, path })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                seedSpan.textContent = data.seed;
-                privateKeyWIFSpan.textContent = data.privateKey;
-                privateKeyHexSpan.textContent = data.privateKeyHex;
-                addressSpan.textContent = data.address;
-                publicKeySpan.textContent = data.publicKey;
-
-                if(resultDiv) resultDiv.style.display = 'block';
-            } catch (error) {
-                console.error('Error fetching address:', error);
-                alert(`Failed to derive keys: ${error.message}`);
-            }
-        });
-    }
+    // Attach listeners for automatic updates
+    mnemonicInput.addEventListener('input', debouncedDerive);
+    pathInput.addEventListener('input', debouncedDerive);
+    networkSelect.addEventListener('change', deriveAndDisplayKeys);
 });

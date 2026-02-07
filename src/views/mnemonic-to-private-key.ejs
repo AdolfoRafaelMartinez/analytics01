@@ -1,55 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Address from Mnemonic</title>
-    <link rel="stylesheet" type="text/css" href="/styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mnemonic to Private Key & Address</title>
+    <!-- Using Bootstrap for styling based on class names -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Corrected path to the local stylesheet -->
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <div class="container">
-        <a href="/">Home</a>
-        <h1>Derive Address from Mnemonic</h1>
-        <p>Generate a new mnemonic or enter an existing one to calculate its private key, public key, and corresponding address.</p>
 
-        <hr>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="text-center mb-4">Mnemonic to Private Key & Address</h1>
 
-        <h2>Generate a New Mnemonic</h2>
-        <button id="generateMnemonicButton" class="btn-submit">Generate New Mnemonic</button>
+            <!-- Mnemonic Input Form -->
+            <form id="mnemonicForm" class="mb-4">
+                <div class="mb-3">
+                    <label for="mnemonic" class="form-label">Mnemonic Phrase</label>
+                    <div class="input-group">
+                        <textarea id="mnemonic" class="form-control" rows="3" placeholder="Enter your 12, 15, 18, 21, or 24-word mnemonic phrase here..."></textarea>
+                        <button id="generateMnemonicButton" class="btn btn-secondary" type="button">Generate New</button>
+                    </div>
+                </div>
 
-        <hr>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="network" class="form-label">Network</label>
+                        <select id="network" class="form-select">
+                            <option value="mainnet">Mainnet</option>
+                            <option value="testnet" selected>Testnet</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="path" class="form-label">Derivation Path</label>
+                        <input type="text" id="path" class="form-control" value="m/44'/1'/0'/0/0">
+                    </div>
+                </div>
+            </form>
 
-        <h2>Calculate from Existing Mnemonic</h2>
-        <form id="mnemonicForm">
-            <div class="form-group">
-                <label for="mnemonic">Mnemonic Phrase:</label>
-                <input type="text" id="mnemonic" name="mnemonic" class="form-control" placeholder="Enter your 12 or 24-word mnemonic phrase">
+            <!-- Seed Display Card -->
+            <div id="seed-result" class="card mb-4" style="display: none;">
+                <div class="card-header">
+                    <h5 class="mb-0">BIP-39 Seed</h5>
+                </div>
+                <div class="card-body">
+                    <div class="result-item">
+                        <strong>Seed (Hex):</strong>
+                        <span id="seed" class="text-break font-monospace"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="network">Network:</label>
-                <select id="network" name="network">
-                    <option value="testnet">Testnet</option>
-                    <option value="testnet2">Testnet2</option>
-                    <option value="testnet3">Testnet3</option>
-                    <option value="testnet4">Testnet4</option>
-                    <option value="mainnet">Mainnet</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="path">Derivation Path:</label>
-                <input type="text" id="path" name="path" value="m/44'/1'/0'/0/0" placeholder="e.g., m/44'/1'/0'/0/0">
-            </div>
-            <button type="submit" class="btn-submit">Derive Keys</button>
-        </form>
 
-        <!-- Results section -->
-        <div id="result" style="display:none;">
-            <h2>Derived Information</h2>
-            <p><strong>Seed (Hex):</strong> <span id="seed"></span></p>
-            <p><strong>Private Key (Hex):</strong> <span id="privateKeyHex"></span></p>
-            <p><strong>Private Key (WIF):</strong> <span id="privateKeyWIF"></span></p>
-            <p><strong>PublicKey:</strong> <span id="publicKey"></span></p>
-            <p><strong>Address:</strong> <span id="address"></span></p>
+            <!-- Derived Information -->
+            <div id="result" class="card" style="display: none;">
+                <div class="card-header">
+                    <h5 class="mb-0">Derived HD Wallet Keys</h5>
+                </div>
+                <div class="card-body">
+                    <div class="result-item">
+                        <strong>Master Private Key (Hex):</strong>
+                        <span id="masterPrivateKey" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Master Public Key (Hex):</strong>
+                        <span id="masterPublicKey" class="text-break font-monospace"></span>
+                    </div>
+                    <hr>
+                    <div class="result-item">
+                        <strong>Child Private Key (WIF):</strong>
+                        <span id="privateKeyWIF" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Child Private Key (Hex):</strong>
+                        <span id="privateKeyHex" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Child Public Key:</strong>
+                        <span id="publicKey" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Address:</strong>
+                        <span id="address" class="text-break font-monospace"></span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-    <script src="/js/mnemonic_ui.js"></script>
+</div>
+
+<script src="/js/mnemonic_ui.js"></script>
 </body>
 </html>
