@@ -136,12 +136,14 @@ export const convertWifToHex = (req: Request, res: Response) => {
 export const getConfirmations = async (req: Request, res: Response) => {
     const { txid, network } = req.body;
     let confirmations: number | null = null;
+    let fee: number | null = null;
     let error: string | null = null;
 
     if (txid && network) {
         try {
             const status = await getTransactionStatus(txid, network);
             confirmations = status.confirmations;
+            fee = status.fee;
         } catch (e: any) {
             error = e.message;
         }
@@ -150,6 +152,7 @@ export const getConfirmations = async (req: Request, res: Response) => {
     res.render('confirmations', { 
         transactionId: txid || '', 
         confirmations, 
+        fee,
         error 
     });
 };

@@ -103,7 +103,7 @@ export const getBalance = async (address: string, network: string): Promise<numb
     return balanceInBtc;
 };
 
-export const getTransactionStatus = async (txid: string, network: string): Promise<{ confirmations: number }> => {
+export const getTransactionStatus = async (txid: string, network: string): Promise<{ confirmations: number; fee: number; }> => {
     const apiKey = process.env.QUICKNODE_API_KEY;
     if (!apiKey) {
         throw new Error('QUICKNODE_API_KEY is not set.');
@@ -130,10 +130,11 @@ export const getTransactionStatus = async (txid: string, network: string): Promi
     }
     
     if (response.data.result) {
-        // A transaction in the mempool has 0 confirmations. 
-        // A confirmed transaction has 1 or more.
-        // If confirmations is undefined, it's likely 0 (in mempool).
-        return { confirmations: response.data.result.confirmations ?? 0 };
+        const fee = Math.abs(response.data.result.fee || 0);
+        return {
+            confirmations: response.data.result.confirmations ?? 0,
+            fee: fee
+        };
     }
 
     throw new Error('Transaction not found.');

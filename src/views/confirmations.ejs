@@ -9,7 +9,7 @@
     <h1>Check Transaction Confirmations</h1>
     <form action="/confirmations" method="POST">
         <label for="txid">Transaction ID:</label>
-        <input type="text" id="txid" name="txid" value="<%= transactionId %>" required>
+        <input type="text" id="txid" name="txid" value="<%= transactionId ?? '' %>" required>
         
         <label for="network">Network:</label>
         <select id="network" name="network">
@@ -20,11 +20,15 @@
         <button type="submit">Check Confirmations</button>
     </form>
 
-    <% if (confirmations !== null) { %>
+    <% if (typeof confirmations !== 'undefined' && confirmations !== null) { %>
         <p>Confirmations: <%= confirmations %></p>
     <% } %>
 
-    <% if (error) { %>
+    <% if (typeof fee !== 'undefined' && fee !== null) { %>
+        <p>Fee: <%= fee %> BTC</p>
+    <% } %>
+
+    <% if (typeof error !== 'undefined' && error) { %>
         <p class="error">Error: <%= error %></p>
     <% } %>
 

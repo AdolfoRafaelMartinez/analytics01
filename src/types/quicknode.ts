@@ -26,6 +26,7 @@ export interface VerboseTxData {
     confirmations: number;
     time: number;
     blocktime: number;
+    fee?: number;
 }
 
 
