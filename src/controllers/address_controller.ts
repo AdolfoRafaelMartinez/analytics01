@@ -24,6 +24,7 @@ export const getAddressFromMnemonic = (req: Request, res: Response) => {
     const nonHdPrivateKeyBuffer = seed.slice(0, 32);
     const nonHdKeyPair = ECPair.fromPrivateKey(nonHdPrivateKeyBuffer, { network });
     const nonHdAddress = bitcoin.payments.p2pkh({ pubkey: nonHdKeyPair.publicKey, network }).address;
+    const nonHdPublicKeyHex = Array.from(nonHdKeyPair.publicKey).map((b: any) => b.toString(16).padStart(2, '0')).join('');
 
     // --- HD Wallet (BIP-32) Derivation ---
     const root = bip32.fromSeed(seed, network);
@@ -62,7 +63,7 @@ export const getAddressFromMnemonic = (req: Request, res: Response) => {
         nonHdAddress: nonHdAddress,
         nonHdPrivateKeyWIF: nonHdKeyPair.toWIF(),
         nonHdPrivateKeyHex: nonHdPrivateKeyBuffer.toString('hex'),
-        nonHdPublicKey: nonHdKeyPair.publicKey.toString('hex')
+        nonHdPublicKey: nonHdPublicKeyHex
     });
 };
 
