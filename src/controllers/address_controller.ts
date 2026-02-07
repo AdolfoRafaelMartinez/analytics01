@@ -1,4 +1,3 @@
-
 import { Request, Response } from 'express';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as bip39 from 'bip39';
@@ -6,26 +5,11 @@ import * as ecc from 'tiny-secp256k1';
 import ECPairFactory from 'ecpair';
 import { BIP32Factory } from 'bip32';
 import { getTransactionStatus } from '../services/quicknode_service.js';
+import { getNetwork } from '../networks.js';
 
 // Initialize the libraries
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
-
-// Define a network object for testnet4, which is compatible with bitcoinjs-lib's testnet for P2PKH
-const testnet4 = { ...bitcoin.networks.testnet };
-
-const getNetwork = (networkName?: string) => {
-    switch (networkName) {
-        case 'mainnet':
-            return bitcoin.networks.bitcoin;
-        case 'testnet':
-            return bitcoin.networks.testnet;
-        case 'testnet4':
-            return testnet4;
-        default:
-            return bitcoin.networks.testnet; // Default to testnet
-    }
-};
 
 export const getAddressFromMnemonic = (req: Request, res: Response) => {
     const { mnemonic, network_name, path: derivationPath } = req.body;

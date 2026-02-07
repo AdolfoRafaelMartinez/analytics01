@@ -3,6 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import { getUtxos, broadcastTransaction, getTxHex } from '../services/quicknode_service.js';
+import { getNetwork } from '../networks.js';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -10,8 +11,8 @@ const ECPair = ECPairFactory(ecc);
 const DUST_THRESHOLD = BigInt(546);
 
 export const transferBtcP2pkh = async (req: Request, res: Response) => {
-    const { fromAddress, toAddress, amount, privateKey } = req.body;
-    const network = bitcoin.networks.testnet;
+    const { fromAddress, toAddress, amount, privateKey, network_name } = req.body;
+    const network = getNetwork(network_name);
 
     if (!fromAddress || !toAddress || !amount || !privateKey) {
         return res.status(400).json({ error: 'Missing required parameters.' });
@@ -36,18 +37,26 @@ export const transferBtcP2pkh = async (req: Request, res: Response) => {
 
         const psbt = new bitcoin.Psbt({ network });
 
+        // Use a Map to store transaction hex values to avoid redundant fetches
+        const txHexCache = new Map<string, string>();
+
         for (const utxo of utxos) {
-            // qn_listunspent returns amount in BTC, so convert to satoshis
             totalInput += BigInt(Math.floor(utxo.amount * 100_000_000));
+            let nonWitnessUtxoHex = txHexCache.get(utxo.txid);
+            if (!nonWitnessUtxoHex) {
+                nonWitnessUtxoHex = await getTxHex(utxo.txid);
+                txHexCache.set(utxo.txid, nonWitnessUtxoHex);
+            }
+            
             psbt.addInput({
                 hash: utxo.txid,
                 index: utxo.vout,
-                nonWitnessUtxo: Buffer.from(await getTxHex(utxo.txid), 'hex'),
+                nonWitnessUtxo: Buffer.from(nonWitnessUtxoHex, 'hex'),
             });
         }
 
         if (totalInput < amountInSatoshis + fee) {
-            return res.status(400).json({ error: 'Insufficient funds.' });
+            return res.status(400).json({ error: 'Insufficient funds for transaction plus fee.' });
         }
 
         psbt.addOutput({ address: toAddress, value: amountInSatoshis });
@@ -64,9 +73,9 @@ export const transferBtcP2pkh = async (req: Request, res: Response) => {
         psbt.finalizeAllInputs();
 
         const txHex = psbt.extractTransaction().toHex();
-        const txHash = await broadcastTransaction(txHex);
+        const txid = await broadcastTransaction(txHex);
 
-        res.json({ txid: txHash });
+        res.json({ txid });
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
