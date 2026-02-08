@@ -195,6 +195,24 @@ button:hover {
     background-color: #f9f9f9;
 }
 
+.demo-wrapper {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.form-column {
+    flex: 1;
+}
+
+.result-column {
+    flex: 1;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
 /* Utility classes */
 .sensitive {
     color: #c0392b;

@@ -19,61 +19,67 @@
                 <li><strong>Low Priority:</strong> <span id="hourFee"></span> sat/vB</li>
             </ul>
         </div>
-        <form id="transactionForm">
-            <div class="form-group">
-                <label for="privateKey">Private Key (Hex):</label>
-                <input type="text" id="privateKey" name="privateKey" placeholder="Enter your 32-byte private key in hexadecimal format" required>
+        <div class="demo-wrapper">
+            <div class="form-column">
+                <form id="transactionForm">
+                    <div class="form-group">
+                        <label for="privateKey">Private Key (Hex):</label>
+                        <input type="text" id="privateKey" name="privateKey" placeholder="Enter your 32-byte private key in hexadecimal format" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fromAddress">From Address:</label>
+                        <div style="font-size: 50%; color: #808080; margin-bottom: 2px;">HD Wallet Child #0</div>
+                        <input type="text" id="fromAddress" name="fromAddress" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="network">Network:</label>
+                        <select id="network" name="network">
+                            <option value="mainnet">Mainnet</option>
+                            <option value="testnet" selected>Testnet</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="toAddress">To Address:</label>
+                        <input type="text" id="toAddress" name="toAddress" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount (BTC):</label>
+                        <input type="number" step="any" id="amount" name="amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fee">Miner's Fee (BTC):</label>
+                        <input type="number" step="any" id="fee" name="fee" value="0.0001" required>
+                        <input type="range" id="feeSlider" min="0" max="100" value="50" style="width: 100%;">
+                        <div style="text-align: center; margin-top: 5px;"><span id="feePriority">Medium Priority</span></div>
+                    </div>
+                    <button type="submit" class="btn">Send Transaction</button>
+                </form>
             </div>
-            <div class="form-group">
-                <label for="fromAddress">From Address:</label>
-                <div style="font-size: 50%; color: #808080; margin-bottom: 2px;">HD Wallet Child #0</div>
-                <input type="text" id="fromAddress" name="fromAddress" readonly>
-            </div>
-            <div class="form-group">
-                <label for="network">Network:</label>
-                <select id="network" name="network">
-                    <option value="mainnet">Mainnet</option>
-                    <option value="testnet" selected>Testnet</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="toAddress">To Address:</label>
-                <input type="text" id="toAddress" name="toAddress" required>
-            </div>
-            <div class="form-group">
-                <label for="amount">Amount (BTC):</label>
-                <input type="number" step="any" id="amount" name="amount" required>
-            </div>
-            <div class="form-group">
-                <label for="fee">Miner's Fee (BTC):</label>
-                <input type="number" step="any" id="fee" name="fee" value="0.0001" required>
-                <input type="range" id="feeSlider" min="0" max="100" value="50" style="width: 100%;">
-                <div style="text-align: center; margin-top: 5px;"><span id="feePriority">Medium Priority</span></div>
-            </div>
-            <button type="submit" class="btn">Send Transaction</button>
-        </form>
-        <div id="transactionResult" style="margin-top: 20px;">
-            <p id="successMessage" style="display: none;">Transaction successful! View on explorer:</p>
-            <a id="transactionLink" href="#" target="_blank"></a>
-            <div class="form-group">
-                <label for="transactionId">Transaction ID:</label>
-                <input type="text" id="transactionId" name="transactionId" readonly>
-            </div>
-            <div class="form-group">
-                <label for="confirmations">Confirmations:</label>
-                <span id="confirmations">Waiting for transaction...</span>
-            </div>
-            <div class="form-group">
-                <label for="vsize">Virtual Size:</label>
-                <span id="vsize"></span> vB
-            </div>
-            <div class="form-group">
-                <h3>Transaction Inputs</h3>
-                <pre id="transactionInputs"></pre>
-            </div>
-            <div class="form-group">
-                <h3>Transaction Outputs</h3>
-                <pre id="transactionOutputs"></pre>
+            <div class="result-column">
+                <div id="transactionResult">
+                    <p id="successMessage" style="display: none;">Transaction successful! View on explorer:</p>
+                    <a id="transactionLink" href="#" target="_blank"></a>
+                    <div class="form-group">
+                        <label for="transactionId">Transaction ID:</label>
+                        <input type="text" id="transactionId" name="transactionId" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmations">Confirmations:</label>
+                        <span id="confirmations">Waiting for transaction...</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="vsize">Virtual Size:</label>
+                        <span id="vsize"></span> vB
+                    </div>
+                    <div class="form-group">
+                        <h3>Transaction Inputs</h3>
+                        <pre id="transactionInputs"></pre>
+                    </div>
+                    <div class="form-group">
+                        <h3>Transaction Outputs</h3>
+                        <pre id="transactionOutputs"></pre>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
