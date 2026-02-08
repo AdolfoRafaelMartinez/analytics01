@@ -1,29 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const privateKeyInput = document.getElementById('privateKey');
-    const networkSelect = document.getElementById('network');
     const transactionForm = document.getElementById('transactionForm');
     const transactionResult = document.getElementById('transactionResult');
     const transactionLink = document.getElementById('transactionLink');
-
-    const detectNetwork = () => {
-        const privateKey = privateKeyInput.value.trim();
-        if (privateKey.startsWith('c')) {
-            networkSelect.value = 'testnet4';
-        } else if (privateKey.startsWith('5') || privateKey.startsWith('K') || privateKey.startsWith('L')) {
-            networkSelect.value = 'mainnet';
-        }
-    };
-
-    privateKeyInput.addEventListener('input', () => {
-        detectNetwork();
-    });
+    const networkSelect = document.getElementById('network');
 
     transactionForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fromAddress = document.getElementById('fromAddress').value;
         const toAddress = document.getElementById('toAddress').value;
         const amount = document.getElementById('amount').value;
-        const privateKey = privateKeyInput.value;
+        const privateKey = document.getElementById('privateKey').value;
         const networkName = networkSelect.value;
 
         try {
@@ -46,13 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 alert(`Error: ${result.error}`);
             }
-        } catch (err) {
+        } catch (err) { 
             alert('An unexpected error occurred.');
         }
     });
-
-    // Initial detection on page load if private key is present
-    if (privateKeyInput.value) {
-        detectNetwork();
-    }
 });
