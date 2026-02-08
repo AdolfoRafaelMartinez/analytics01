@@ -8,9 +8,9 @@ import { getNetwork } from '../networks.js';
 const ECPair = ECPairFactory(ecc);
 
 export const transferP2pkh = async (req: Request, res: Response) => {
-    const { fromAddress, toAddress, amount, privateKey, network_name } = req.body;
+    const { toAddress, amount, privateKey, network_name } = req.body;
 
-    if (!fromAddress || !toAddress || !amount || !privateKey || !network_name) {
+    if (!toAddress || !amount || !privateKey || !network_name) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -20,11 +20,11 @@ export const transferP2pkh = async (req: Request, res: Response) => {
         const privateKeyBuffer = Buffer.from(privateKey, 'hex');
         const keyPair = ECPair.fromPrivateKey(privateKeyBuffer, { network });
 
-        const { address: derivedAddress } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network });
+        const { address: fromAddress } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network });
 
-        if (fromAddress !== derivedAddress) {
-            return res.status(400).json({ 
-                error: 'The provided private key does not correspond to the fromAddress.' 
+        if (!fromAddress) {
+            return res.status(500).json({
+                error: 'Could not derive address from the provided private key.'
             });
         }
 
@@ -43,8 +43,7 @@ export const transferP2pkh = async (req: Request, res: Response) => {
                 index: utxo.vout,
                 nonWitnessUtxo: Buffer.from(utxo.hex, 'hex'),
             });
-
-            // THE CORRECT FIX: The property is 'amount' and it must be converted from BTC to satoshis.
+            
             const valueInSatoshis = Math.round(utxo.amount * 100_000_000);
             totalInput += BigInt(valueInSatoshis);
         }
