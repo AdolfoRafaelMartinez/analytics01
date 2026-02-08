@@ -47,6 +47,7 @@
                 <label for="fee">Miner's Fee (BTC):</label>
                 <input type="number" step="any" id="fee" name="fee" value="0.0001" required>
                 <input type="range" id="feeSlider" min="0" max="100" value="50" style="width: 100%;">
+                <div style="text-align: center; margin-top: 5px;"><span id="feePriority">Medium Priority</span></div>
             </div>
             <button type="submit" class="btn">Send Transaction</button>
         </form>
@@ -85,6 +86,7 @@
             const hourFeeSpan = document.getElementById('hourFee');
             const feeInput = document.getElementById('fee');
             const feeSlider = document.getElementById('feeSlider');
+            const feePrioritySpan = document.getElementById('feePriority');
 
             let lowFee, highFee;
 
@@ -118,6 +120,14 @@
                     const feeRange = highFee - lowFee;
                     const calculatedFee = lowFee + (feeRange * (sliderValue / 100));
                     feeInput.value = (calculatedFee / 100000000).toFixed(8);
+
+                    if (sliderValue < 34) {
+                        feePrioritySpan.textContent = 'Low Priority';
+                    } else if (sliderValue < 67) {
+                        feePrioritySpan.textContent = 'Medium Priority';
+                    } else {
+                        feePrioritySpan.textContent = 'High Priority';
+                    }
                 }
             }
             
