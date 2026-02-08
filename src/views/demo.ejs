@@ -10,6 +10,15 @@
     <a href="/">Home</a>
     <div class="container">
         <h1>Bitcoin Transaction (P2PKH)</h1>
+        <div class="form-group">
+            <h3>Recommended Miner Fees</h3>
+            <p>Fees are in satoshis per virtual byte (sat/vB).</p>
+            <ul id="fee-recommendations">
+                <li><strong>High Priority:</strong> <span id="fastestFee"></span> sat/vB</li>
+                <li><strong>Medium Priority:</strong> <span id="halfHourFee"></span> sat/vB</li>
+                <li><strong>Low Priority:</strong> <span id="hourFee"></span> sat/vB</li>
+            </ul>
+        </div>
         <form id="transactionForm">
             <div class="form-group">
                 <label for="privateKey">Private Key (Hex):</label>
@@ -60,9 +69,34 @@
     <script src="/js/transfer_p2pkh_ui.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const networkSelect = document.getElementById('network');
+            const fastestFeeSpan = document.getElementById('fastestFee');
+            const halfHourFeeSpan = document.getElementById('halfHourFee');
+            const hourFeeSpan = document.getElementById('hourFee');
+
+            const fetchFeeRecommendations = async () => {
+                const networkName = networkSelect.value;
+                const networkPath = networkName === 'mainnet' ? '' : 'testnet/';
+                const apiUrl = `https://mempool.space/${networkPath}api/v1/fees/recommended`;
+                try {
+                    const response = await fetch(apiUrl);
+                    const fees = await response.json();
+                    fastestFeeSpan.textContent = fees.fastestFee;
+                    halfHourFeeSpan.textContent = fees.halfHourFee;
+                    hourFeeSpan.textContent = fees.hourFee;
+                } catch (error) {
+                    console.error('Error fetching fee recommendations:', error);
+                    fastestFeeSpan.textContent = 'Error';
+                    halfHourFeeSpan.textContent = 'Error';
+                    hourFeeSpan.textContent = 'Error';
+                }
+            };
+
+            fetchFeeRecommendations();
+            networkSelect.addEventListener('change', fetchFeeRecommendations);
+
             const transactionIdInput = document.getElementById('transactionId');
             const confirmationsSpan = document.getElementById('confirmations');
-            const networkSelect = document.getElementById('network');
             const transactionInputsPre = document.getElementById('transactionInputs');
             const transactionOutputsPre = document.getElementById('transactionOutputs');
 
@@ -85,7 +119,6 @@
                     }
                     const txData = await txResponse.json();
 
-                    // Display confirmations
                     if (txData.status.confirmed) {
                         const tipHeightResponse = await fetch(`${apiUrl}blocks/tip/height`);
                         const tipHeight = await tipHeightResponse.json();
@@ -96,7 +129,6 @@
                         confirmationsSpan.textContent = '0';
                     }
 
-                    // Display inputs and outputs
                     transactionInputsPre.textContent = JSON.stringify(txData.vin, null, 2);
                     transactionOutputsPre.textContent = JSON.stringify(txData.vout, null, 2);
 
@@ -105,18 +137,16 @@
                     confirmationsSpan.textContent = 'Error fetching status';
                 }
             };
-
-            // Watch for the transaction ID to appear
             const txIdObserver = new MutationObserver((mutationsList, observer) => {
                 for(const mutation of mutationsList) {
                     if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
                         const txid = transactionIdInput.value;
                         if (txid && !txidHasBeenProcessed) {
-                            txidHasBeenProcessed = true; // Prevents re-running for the same txid
-                            confirmationsSpan.textContent = '0'; // Initial state
-                            fetchTransactionDetails(); // Fetch immediately
-                            confirmationInterval = setInterval(fetchTransactionDetails, 30000); // Then poll every 30s
-                            observer.disconnect(); // Stop observing once we have the txid
+                            txidHasBeenProcessed = true;
+                            confirmationsSpan.textContent = '0';
+                            fetchTransactionDetails();
+                            confirmationInterval = setInterval(fetchTransactionDetails, 30000);
+                            observer.disconnect();
                         }
                     }
                 }
