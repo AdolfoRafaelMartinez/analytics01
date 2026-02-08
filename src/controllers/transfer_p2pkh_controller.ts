@@ -8,6 +8,7 @@ import { getNetwork } from '../networks.js';
 const ECPair = ECPairFactory(ecc);
 
 export const transferP2pkh = async (req: Request, res: Response) => {
+    console.log(req.body);
     const { toAddress, amount, fee, privateKey, network_name } = req.body;
 
     if (!toAddress || !amount || !fee || !privateKey || !network_name) {
