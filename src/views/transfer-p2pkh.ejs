@@ -16,31 +16,28 @@
             </div>
             <div class="form-group">
                 <label for="network">Network:</label>
-                <select id="network" name="network">
-                    <option value="testnet">Testnet</option>
-                    <option value="testnet2">Testnet2</option>
-                    <option value="testnet3">Testnet3</option>
-                    <option value="testnet4" selected>Testnet4</option>
+                <select id="network" name="network" disabled>
                     <option value="mainnet">Mainnet</option>
+                    <option value="testnet4" selected>Testnet</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="fromAddress">From Address:</label>
-                <input type="text" id="fromAddress" name="fromAddress" readonly>
+                <input type="text" id="fromAddress" name="fromAddress" placeholder="Enter the source address" required>
             </div>
             <div class="form-group">
                 <label for="toAddress">To Address:</label>
-                <input type="text" id="toAddress" name="toAddress" placeholder="Enter recipient's address" required>
+                <input type="text" id="toAddress" name="toAddress" required>
             </div>
             <div class="form-group">
                 <label for="amount">Amount (BTC):</label>
-                <input type="text" id="amount" name="amount" placeholder="Enter amount in BTC" required>
+                <input type="number" step="any" id="amount" name="amount" required>
             </div>
-            <button type="submit">Send Transaction</button>
+            <button type="submit" class="btn">Send Transaction</button>
         </form>
-        <div id="transactionResult" style="display:none;">
-            <h2>Transaction Successful!</h2>
-            <p>Transaction ID: <a id="transactionLink" href="#" target="_blank"></a></p>
+        <div id="transactionResult" style="display:none; margin-top: 20px;">
+            <p>Transaction successful! View on explorer:</p>
+            <a id="transactionLink" href="#" target="_blank"></a>
         </div>
     </div>
     <script src="/js/transfer_p2pkh_ui.js"></script>
