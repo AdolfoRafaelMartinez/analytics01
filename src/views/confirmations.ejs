@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <a href="/">Home</a>
     <h1>Check Transaction Confirmations</h1>
     <form action="/confirmations" method="POST">
         <label for="txid">Transaction ID:</label>
@@ -35,7 +36,5 @@
     <% if (typeof error !== 'undefined' && error) { %>
         <p class="error">Error: <%= error %></p>
     <% } %>
-
-    <a href="/">Back to Home</a>
 </body>
 </html>
