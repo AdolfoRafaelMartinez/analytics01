@@ -8,15 +8,16 @@ import { getNetwork } from '../networks.js';
 const ECPair = ECPairFactory(ecc);
 
 export const transferP2pkh = async (req: Request, res: Response) => {
-    const { toAddress, amount, privateKey, network_name } = req.body;
+    const { toAddress, amount, fee, privateKey, network_name } = req.body;
 
-    if (!toAddress || !amount || !privateKey || !network_name) {
+    if (!toAddress || !amount || !fee || !privateKey || !network_name) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
     try {
         const network = getNetwork(network_name);
         const amountInSatoshis = BigInt(Math.round(parseFloat(amount) * 100_000_000));
+        const feeInSatoshis = BigInt(Math.round(parseFloat(fee) * 100_000_000));
         const privateKeyBuffer = Buffer.from(privateKey, 'hex');
         const keyPair = ECPair.fromPrivateKey(privateKeyBuffer, { network });
 
@@ -48,8 +49,7 @@ export const transferP2pkh = async (req: Request, res: Response) => {
             totalInput += BigInt(valueInSatoshis);
         }
 
-        const fee = BigInt(10000);
-        const change = totalInput - amountInSatoshis - fee;
+        const change = totalInput - amountInSatoshis - feeInSatoshis;
 
         if (change < 0) {
             return res.status(400).json({ error: 'Insufficient funds for transaction' });

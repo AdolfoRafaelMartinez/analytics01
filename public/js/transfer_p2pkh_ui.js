@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const toAddress = document.getElementById('toAddress').value;
         const amount = document.getElementById('amount').value;
+        const fee = document.getElementById('fee').value;
         const privateKey = document.getElementById('privateKey').value;
         const networkName = networkSelect.value;
 
@@ -15,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/transfer-p2pkh', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ toAddress, amount, privateKey, network_name: networkName })
+                body: JSON.stringify({ toAddress, amount, fee, privateKey, network_name: networkName })
             });
 
             const result = await response.json();
