@@ -25,6 +25,10 @@
                 <input type="text" id="privateKey" name="privateKey" placeholder="Enter your 32-byte private key in hexadecimal format" required>
             </div>
             <div class="form-group">
+                <label for="fromAddress">From Address:</label>
+                <input type="text" id="fromAddress" name="fromAddress" readonly>
+            </div>
+            <div class="form-group">
                 <label for="network">Network:</label>
                 <select id="network" name="network">
                     <option value="mainnet">Mainnet</option>
@@ -71,6 +75,7 @@
         </div>
     </div>
     <script src="/js/transfer_p2pkh_ui.js"></script>
+    <script src="/js/bundle.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const networkSelect = document.getElementById('network');
@@ -124,7 +129,6 @@
                     }
                     const txData = await txResponse.json();
 
-                    // Display confirmations
                     if (txData.status.confirmed) {
                         const tipHeightResponse = await fetch(`${apiUrl}blocks/tip/height`);
                         const tipHeight = await tipHeightResponse.json();
@@ -135,10 +139,8 @@
                         confirmationsSpan.textContent = '0';
                     }
 
-                    // Display virtual size
                     vsizeSpan.textContent = txData.vsize;
 
-                    // Display inputs and outputs
                     transactionInputsPre.textContent = JSON.stringify(txData.vin, null, 2);
                     transactionOutputsPre.textContent = JSON.stringify(txData.vout, null, 2);
 
