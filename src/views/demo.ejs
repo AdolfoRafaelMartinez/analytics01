@@ -50,7 +50,7 @@
             <button type="submit" class="btn">Send Transaction</button>
         </form>
         <div id="transactionResult" style="margin-top: 20px;">
-            <p>Transaction successful! View on explorer:</p>
+            <p id="successMessage" style="display: none;">Transaction successful! View on explorer:</p>
             <a id="transactionLink" href="#" target="_blank"></a>
             <div class="form-group">
                 <label for="transactionId">Transaction ID:</label>
@@ -109,6 +109,7 @@
             const vsizeSpan = document.getElementById('vsize');
             const transactionInputsPre = document.getElementById('transactionInputs');
             const transactionOutputsPre = document.getElementById('transactionOutputs');
+            const successMessage = document.getElementById('successMessage');
 
             let confirmationInterval;
             let txidHasBeenProcessed = false;
@@ -154,6 +155,7 @@
                     if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
                         const txid = transactionIdInput.value;
                         if (txid && !txidHasBeenProcessed) {
+                            successMessage.style.display = 'block';
                             txidHasBeenProcessed = true;
                             confirmationsSpan.textContent = '0';
                             fetchTransactionDetails();
