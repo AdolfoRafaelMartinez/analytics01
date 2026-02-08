@@ -121,12 +121,21 @@
                     const calculatedFee = lowFee + (feeRange * (sliderValue / 100));
                     feeInput.value = (calculatedFee / 100000000).toFixed(8);
 
+                    feePrioritySpan.style.padding = '2px 8px';
+                    feePrioritySpan.style.borderRadius = '4px';
+
                     if (sliderValue < 34) {
                         feePrioritySpan.textContent = 'Low Priority';
+                        feePrioritySpan.style.backgroundColor = 'red';
+                        feePrioritySpan.style.color = 'white';
                     } else if (sliderValue < 67) {
                         feePrioritySpan.textContent = 'Medium Priority';
+                        feePrioritySpan.style.backgroundColor = 'yellow';
+                        feePrioritySpan.style.color = 'black';
                     } else {
                         feePrioritySpan.textContent = 'High Priority';
+                        feePrioritySpan.style.backgroundColor = 'green';
+                        feePrioritySpan.style.color = 'white';
                     }
                 }
             }
