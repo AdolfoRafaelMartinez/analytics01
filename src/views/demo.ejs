@@ -57,6 +57,10 @@
                 <span id="confirmations">Waiting for transaction...</span>
             </div>
             <div class="form-group">
+                <label for="vsize">Virtual Size:</label>
+                <span id="vsize"></span> vB
+            </div>
+            <div class="form-group">
                 <h3>Transaction Inputs</h3>
                 <pre id="transactionInputs"></pre>
             </div>
@@ -97,6 +101,7 @@
 
             const transactionIdInput = document.getElementById('transactionId');
             const confirmationsSpan = document.getElementById('confirmations');
+            const vsizeSpan = document.getElementById('vsize');
             const transactionInputsPre = document.getElementById('transactionInputs');
             const transactionOutputsPre = document.getElementById('transactionOutputs');
 
@@ -119,6 +124,7 @@
                     }
                     const txData = await txResponse.json();
 
+                    // Display confirmations
                     if (txData.status.confirmed) {
                         const tipHeightResponse = await fetch(`${apiUrl}blocks/tip/height`);
                         const tipHeight = await tipHeightResponse.json();
@@ -129,6 +135,10 @@
                         confirmationsSpan.textContent = '0';
                     }
 
+                    // Display virtual size
+                    vsizeSpan.textContent = txData.vsize;
+
+                    // Display inputs and outputs
                     transactionInputsPre.textContent = JSON.stringify(txData.vin, null, 2);
                     transactionOutputsPre.textContent = JSON.stringify(txData.vout, null, 2);
 
