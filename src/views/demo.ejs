@@ -46,6 +46,7 @@
             <div class="form-group">
                 <label for="fee">Miner's Fee (BTC):</label>
                 <input type="number" step="any" id="fee" name="fee" value="0.0001" required>
+                <input type="range" id="feeSlider" min="0" max="100" value="50" style="width: 100%;">
             </div>
             <button type="submit" class="btn">Send Transaction</button>
         </form>
@@ -82,6 +83,10 @@
             const fastestFeeSpan = document.getElementById('fastestFee');
             const halfHourFeeSpan = document.getElementById('halfHourFee');
             const hourFeeSpan = document.getElementById('hourFee');
+            const feeInput = document.getElementById('fee');
+            const feeSlider = document.getElementById('feeSlider');
+
+            let lowFee, highFee;
 
             const fetchFeeRecommendations = async () => {
                 const networkName = networkSelect.value;
@@ -93,6 +98,12 @@
                     fastestFeeSpan.textContent = fees.fastestFee;
                     halfHourFeeSpan.textContent = fees.halfHourFee;
                     hourFeeSpan.textContent = fees.hourFee;
+
+                    lowFee = fees.hourFee;
+                    highFee = fees.fastestFee;
+
+                    updateFeeFromSlider();
+
                 } catch (error) {
                     console.error('Error fetching fee recommendations:', error);
                     fastestFeeSpan.textContent = 'Error';
@@ -100,6 +111,17 @@
                     hourFeeSpan.textContent = 'Error';
                 }
             };
+            
+            const updateFeeFromSlider = () => {
+                if(lowFee && highFee){
+                    const sliderValue = feeSlider.value;
+                    const feeRange = highFee - lowFee;
+                    const calculatedFee = lowFee + (feeRange * (sliderValue / 100));
+                    feeInput.value = (calculatedFee / 100000000).toFixed(8);
+                }
+            }
+            
+            feeSlider.addEventListener('input', updateFeeFromSlider);
 
             fetchFeeRecommendations();
             networkSelect.addEventListener('change', fetchFeeRecommendations);
