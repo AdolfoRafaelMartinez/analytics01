@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
-import ECPairFactory from 'ecpair';
+import { ECPairFactory } from 'ecpair';
 import { getUtxos, broadcastTransaction } from '../services/quicknode_service.js';
 import { getNetwork } from '../networks.js';
 
@@ -55,10 +55,10 @@ export const transferP2pkh = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Insufficient funds for transaction' });
         }
 
-        psbt.addOutput({ address: toAddress, value: amountInSatoshis });
+        psbt.addOutput({ address: toAddress, value: Number(amountInSatoshis) });
 
         if (change > 0) {
-            psbt.addOutput({ address: fromAddress, value: change });
+            psbt.addOutput({ address: fromAddress, value: Number(change) });
         }
 
         for (let i = 0; i < utxos.length; i++) {

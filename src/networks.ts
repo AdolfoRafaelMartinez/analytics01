@@ -18,8 +18,8 @@ export const testnet4 = {
 
 /**
  * Returns the appropriate bitcoinjs-lib network configuration based on a string name.
- * Defaults to testnet4.
- * @param networkName The name of the network ('mainnet', 'testnet', 'testnet4').
+ * Defaults to testnet.
+ * @param networkName The name of the network ('mainnet', 'testnet').
  * @returns The network configuration object.
  */
 export const getNetwork = (networkName?: string): bitcoin.networks.Network => {
@@ -27,9 +27,8 @@ export const getNetwork = (networkName?: string): bitcoin.networks.Network => {
         case 'mainnet':
             return bitcoin.networks.bitcoin;
         case 'testnet':
-        case 'testnet4':
-            return testnet4;
+            return bitcoin.networks.testnet;
         default:
-            return testnet4; // Default to testnet4 for safety
+            return bitcoin.networks.testnet; // Default to testnet for safety
     }
 };

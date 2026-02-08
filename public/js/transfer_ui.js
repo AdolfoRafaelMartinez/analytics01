@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({ 
                     privateKey: privateKey,
-                    network_name: 'testnet4'
+                    network_name: 'testnet'
                 })
             });
 

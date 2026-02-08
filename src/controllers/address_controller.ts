@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as bip39 from 'bip39';
 import * as ecc from 'tiny-secp256k1';
-import ECPairFactory from 'ecpair';
+import { ECPairFactory } from 'ecpair';
 import { BIP32Factory } from 'bip32';
 import { getTransactionStatus } from '../services/quicknode_service.js';
 import { getNetwork } from '../networks.js';
@@ -73,7 +73,8 @@ export const getAddressFromPrivateKey = (req: Request, res: Response) => {
     const network = getNetwork(network_name);
 
     try {
-        const keyPair = ECPair.fromWIF(privateKey, network);
+        const privateKeyBuffer = Buffer.from(privateKey, 'hex');
+        const keyPair = ECPair.fromPrivateKey(privateKeyBuffer, { network });
         const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network });
         res.json({ address });
     } catch (error: any) {
@@ -88,7 +89,8 @@ export const postPrivateKeyToAddressPage = (req: Request, res: Response) => {
     let error = null;
 
     try {
-        const keyPair = ECPair.fromWIF(privateKey, network);
+        const privateKeyBuffer = Buffer.from(privateKey, 'hex');
+        const keyPair = ECPair.fromPrivateKey(privateKeyBuffer, { network });
         const p2pkh = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network });
         address = p2pkh.address;
     } catch (e: any) {

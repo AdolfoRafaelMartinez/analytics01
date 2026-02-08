@@ -49,13 +49,13 @@ export const transferBtc = async (req: Request, res: Response) => {
 
         psbt.addOutput({
             address: toAddress,
-            value: amountToSendInSatoshis,
+            value: Number(amountToSendInSatoshis),
         });
 
         if (changeInSatoshis > BigInt(0)) {
             psbt.addOutput({
                 address: fromAddress, // Send change back to the sender
-                value: changeInSatoshis,
+                value: Number(changeInSatoshis),
             });
         }
 
