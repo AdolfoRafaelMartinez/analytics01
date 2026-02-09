@@ -4,7 +4,8 @@ const router = Router();
 
 // Page rendering route
 router.get('/demo', (req, res) => {
-    res.render('demo');
+    const { error } = req.query;
+    res.render('demo', { error });
 });
 
 export default router;

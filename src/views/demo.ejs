@@ -9,6 +9,11 @@
 <body>
     <a href="/">Home</a>
     <div class="container">
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="error-message">
+                <p><strong>Error:</strong> <%= error %></p>
+            </div>
+        <% } %>
         <h1>Bitcoin Transaction (P2PKH)</h1>
         <div class="form-group">
             <h3>Recommended Miner Fees</h3>

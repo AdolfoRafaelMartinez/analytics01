@@ -51,14 +51,14 @@ export const transferP2pkh = async (req: Request, res: Response) => {
 
         const change = totalInput - amountInSatoshis - feeInSatoshis;
 
-        if (change < 0) {
+        if (change < BigInt(0)) {
             return res.status(400).json({ error: 'Insufficient funds for transaction' });
         }
 
-        psbt.addOutput({ address: toAddress, value: Number(amountInSatoshis) });
+        psbt.addOutput({ address: toAddress, value: amountInSatoshis });
 
-        if (change > 0) {
-            psbt.addOutput({ address: fromAddress, value: Number(change) });
+        if (change > BigInt(0)) {
+            psbt.addOutput({ address: fromAddress, value: change });
         }
 
         for (let i = 0; i < utxos.length; i++) {
@@ -72,6 +72,6 @@ export const transferP2pkh = async (req: Request, res: Response) => {
 
         res.json({ txid });
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        res.redirect(`/demo?error=${encodeURIComponent(error.message)}`);
     }
 };
