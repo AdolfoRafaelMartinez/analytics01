@@ -11,7 +11,7 @@ export const transferP2pkh = async (req: Request, res: Response) => {
     const { toAddress, amount, fee, privateKey, network_name } = req.body;
 
     if (!toAddress || !amount || !fee || !privateKey || !network_name) {
-        return res.status(400).json({ error: 'Missing required fields' });
+        return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('Missing required fields')}`);
     }
 
     try {
@@ -24,15 +24,13 @@ export const transferP2pkh = async (req: Request, res: Response) => {
         const { address: fromAddress } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network });
 
         if (!fromAddress) {
-            return res.status(500).json({
-                error: 'Could not derive address from the provided private key.'
-            });
+            return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('Could not derive address from the provided private key.')}`);
         }
 
         const utxos = await getUtxos(fromAddress);
 
         if (utxos.length === 0) {
-            return res.status(400).json({ error: 'No spendable outputs found' });
+            return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('No spendable outputs found')}`);
         }
 
         const psbt = new bitcoin.Psbt({ network });
@@ -52,7 +50,7 @@ export const transferP2pkh = async (req: Request, res: Response) => {
         const change = totalInput - amountInSatoshis - feeInSatoshis;
 
         if (change < 0) {
-            return res.status(400).json({ error: 'Insufficient funds for transaction' });
+            return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('Insufficient funds for transaction')}`);
         }
 
         psbt.addOutput({ address: toAddress, value: amountInSatoshis });
@@ -70,8 +68,8 @@ export const transferP2pkh = async (req: Request, res: Response) => {
         const txHex = psbt.extractTransaction().toHex();
         const txid = await broadcastTransaction(txHex);
 
-        res.json({ txid });
+        res.redirect(`/transaction?txid=${txid}&network=${network_name}`);
     } catch (error: any) {
-        res.redirect(`/demo?error=${encodeURIComponent(error.message)}`);
+        res.redirect(`/transfer-p2pkh?error=${encodeURIComponent(error.message)}`);
     }
 };
