@@ -27,8 +27,13 @@
 
         <% 
         let confirmationStyle = '';
-        if (details && details.status.confirmed) {
-            confirmationStyle = 'background-color: #2ECC71; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;';
+        let unconfirmedStyle = '';
+        if (details) {
+            if (details.status.confirmed) {
+                confirmationStyle = 'background-color: #2ECC71; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;';
+            } else {
+                unconfirmedStyle = 'background-color: #E74C3C; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;';
+            }
         }
         %>
 
@@ -43,17 +48,17 @@
                     <label>Confirmations:</label>
                     <span id="confirmations"><%= details.status.confirmed ? details.confirmations : 0 %></span>
                 </div>
-                <div class="form-group">
+                <div id="block-height-group" class="form-group" style="<%= unconfirmedStyle %>">
                     <label>Block Height:</label>
-                    <span id="block-height"><%- details.status.block_height || '<span style="color: red;">Unconfirmed</span>' %></span>
+                    <span id="block-height"><%- details.status.block_height || 'Unconfirmed' %></span>
                 </div>
-                <div class="form-group">
+                <div id="block-hash-group" class="form-group" style="<%= unconfirmedStyle %>">
                     <label>Block Hash:</label>
-                    <span id="block-hash"><%- details.status.block_hash || '<span style="color: red;">Unconfirmed</span>' %></span>
+                    <span id="block-hash"><%- details.status.block_hash || 'Unconfirmed' %></span>
                 </div>
-                <div class="form-group">
+                <div id="timestamp-group" class="form-group" style="<%= unconfirmedStyle %>">
                     <label>Timestamp:</label>
-                    <span id="timestamp"><%- details.status.block_time ? new Date(details.status.block_time * 1000).toLocaleString() : '<span style="color: red;">Unconfirmed</span>' %></span>
+                    <span id="timestamp"><%- details.status.block_time ? new Date(details.status.block_time * 1000).toLocaleString() : 'Unconfirmed' %></span>
                 </div>
                 <div class="form-group">
                     <label>Fee:</label>
@@ -79,15 +84,15 @@
                     <label>Confirmations:</label>
                     <span id="confirmations"></span>
                 </div>
-                <div class="form-group">
+                <div id="block-height-group" class="form-group">
                     <label>Block Height:</label>
                     <span id="block-height"></span>
                 </div>
-                <div class="form-group">
+                <div id="block-hash-group" class="form-group">
                     <label>Block Hash:</label>
                     <span id="block-hash"></span>
                 </div>
-                <div class="form-group">
+                <div id="timestamp-group" class="form-group">
                     <label>Timestamp:</label>
                     <span id="timestamp"></span>
                 </div>
@@ -114,8 +119,13 @@
         const txidInput = document.getElementById('txid');
         const networkInput = document.getElementById('network');
         const lastUpdatedSpan = document.getElementById('last-updated');
+        
         const confirmationsGroup = document.getElementById('confirmations-group');
         const confirmationsSpan = document.getElementById('confirmations');
+        const blockHeightGroup = document.getElementById('block-height-group');
+        const blockHashGroup = document.getElementById('block-hash-group');
+        const timestampGroup = document.getElementById('timestamp-group');
+        
         let refreshInterval;
 
         const updateTimestamp = () => {
@@ -123,16 +133,12 @@
         };
 
         const getConfirmations = async (txData, network) => {
-            if (!txData.status.confirmed) {
-                return 0;
-            }
+            if (!txData.status.confirmed) return 0;
             try {
                 const networkPath = network === 'mainnet' ? '' : `${network}/`;
                 const heightUrl = `https://mempool.space/${networkPath}api/blocks/tip/height`;
                 const response = await fetch(heightUrl);
-                if (!response.ok) {
-                    return 'N/A'; 
-                }
+                if (!response.ok) return 'N/A';
                 const currentHeight = await response.json();
                 return currentHeight - txData.status.block_height + 1;
             } catch (e) {
@@ -140,22 +146,21 @@
             }
         };
         
-        const updateConfirmationStyles = (isConfirmed, confirmationCount) => {
-            if (isConfirmed) {
-                confirmationsSpan.textContent = confirmationCount;
-                confirmationsGroup.style.backgroundColor = '#2ECC71';
-                confirmationsGroup.style.color = 'white';
-                confirmationsGroup.style.padding = '10px';
-                confirmationsGroup.style.borderRadius = '5px';
-                confirmationsGroup.style.margin = '5px 0';
-            } else {
-                confirmationsSpan.textContent = '0';
-                confirmationsGroup.style.backgroundColor = '';
-                confirmationsGroup.style.color = '';
-                confirmationsGroup.style.padding = '';
-                confirmationsGroup.style.borderRadius = '';
-                confirmationsGroup.style.margin = '';
-            }
+        const updateTxStyles = (data, confirmations) => {
+            const isConfirmed = data.status.confirmed;
+            const unconfirmedStyle = 'background-color: #E74C3C; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;';
+            const confirmedStyle = 'background-color: #2ECC71; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;';
+            
+            confirmationsGroup.style.cssText = isConfirmed ? confirmedStyle : '';
+            confirmationsSpan.textContent = isConfirmed ? confirmations : '0';
+
+            [blockHeightGroup, blockHashGroup, timestampGroup].forEach(group => {
+                group.style.cssText = isConfirmed ? '' : unconfirmedStyle;
+            });
+
+            document.getElementById('block-height').textContent = data.status.block_height || 'Unconfirmed';
+            document.getElementById('block-hash').textContent = data.status.block_hash || 'Unconfirmed';
+            document.getElementById('timestamp').textContent = data.status.block_time ? new Date(data.status.block_time * 1000).toLocaleString() : 'Unconfirmed';
         };
 
         const refreshDetails = async () => {
@@ -177,11 +182,8 @@
                 const data = await response.json();
                 const confirmations = await getConfirmations(data, network);
 
-                updateConfirmationStyles(data.status.confirmed, confirmations);
+                updateTxStyles(data, confirmations);
 
-                document.getElementById('block-height').innerHTML = data.status.block_height || '<span style="color: red;">Unconfirmed</span>';
-                document.getElementById('block-hash').innerHTML = data.status.block_hash || '<span style="color: red;">Unconfirmed</span>';
-                document.getElementById('timestamp').innerHTML = data.status.block_time ? new Date(data.status.block_time * 1000).toLocaleString() : '<span style="color: red;">Unconfirmed</span>';
                 document.getElementById('vsize').textContent = (data.vsize || data.weight / 4).toFixed(0) + ' vB';
                 updateTimestamp();
 
@@ -223,10 +225,7 @@
                 const confirmations = await getConfirmations(data, network);
 
                 document.getElementById('txid-display').textContent = data.txid;
-                updateConfirmationStyles(data.status.confirmed, confirmations);
-                document.getElementById('block-height').innerHTML = data.status.block_height || '<span style="color: red;">Unconfirmed</span>';
-                document.getElementById('block-hash').innerHTML = data.status.block_hash || '<span style="color: red;">Unconfirmed</span>';
-                document.getElementById('timestamp').innerHTML = data.status.block_time ? new Date(data.status.block_time * 1000).toLocaleString() : '<span style="color: red;">Unconfirmed</span>';
+                updateTxStyles(data, confirmations);
                 document.getElementById('fee').textContent = (data.fee / 100000000).toFixed(8) + ' BTC';
                 document.getElementById('vsize').textContent = (data.vsize || data.weight / 4).toFixed(0) + ' vB';
                 document.getElementById('vin').textContent = JSON.stringify(data.vin, null, 2);

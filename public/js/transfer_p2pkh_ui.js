@@ -33,6 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     transactionForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        const submitButton = transactionForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Broadcasting...';
+
         const toAddress = document.getElementById('toAddress').value;
         const amount = document.getElementById('amount').value;
         const fee = document.getElementById('fee').value;
@@ -46,22 +51,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ toAddress, amount, fee, privateKey, network_name: networkName })
             });
 
-            const result = await response.json();
-
-            if (response.ok) {
-                const explorerUrl = networkName === 'mainnet' 
-                    ? `https://mempool.space/tx/${result.txid}` 
-                    : `https://mempool.space/testnet/tx/${result.txid}`;
-                
-                transactionLink.href = explorerUrl;
-                transactionLink.textContent = result.txid;
-                transactionResult.style.display = 'block';
-                 document.getElementById('transactionId').value = result.txid;
+            // The backend now sends a redirect on both success and error.
+            // The fetch API follows this redirect, and the final URL is in response.url.
+            if (response.redirected) {
+                window.location.href = response.url;
             } else {
+                // This is a fallback for unexpected server errors where no redirect is sent.
+                const result = await response.json().catch(() => ({ error: 'An unknown server error occurred.' }));
                 alert(`Error: ${result.error}`);
+                submitButton.disabled = false;
+                submitButton.textContent = 'Broadcast Transaction';
             }
-        } catch (err) { 
-            alert('An unexpected error occurred.');
+        } catch (err) {
+            alert('An unexpected network error occurred.');
+            submitButton.disabled = false;
+            submitButton.textContent = 'Broadcast Transaction';
         }
     });
 });
