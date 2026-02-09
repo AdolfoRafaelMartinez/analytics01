@@ -25,16 +25,23 @@
             </div>
         </div>
 
+        <% 
+        let confirmationStyle = '';
+        if (details && details.status.confirmed) {
+            confirmationStyle = 'background-color: #2ECC71; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;';
+        }
+        %>
+
         <% if (details) { %>
             <div id="transaction-details">
-                <h2>Transaction Details <span style="font-size: 0.7em; color: #888;">(Last Updated: <span id="last-updated"></span>)</span></h2>
+                <h2>Transaction Details <span style="font-size: 0.7em; color: #888;">(Last Updated: <span id="last-updated" style="background-color: #3498db; color: white; padding: 2px 5px; border-radius: 4px;"></span>)</span></h2>
                 <div class="form-group">
                     <label>Transaction ID:</label>
                     <span id="txid-display"><%= details.txid %></span>
                 </div>
-                <div class="form-group">
+                <div id="confirmations-group" class="form-group" style="<%= confirmationStyle %>">
                     <label>Confirmations:</label>
-                    <span id="confirmations"><%= details.status.confirmed ? details.status.block_height : 0 %></span>
+                    <span id="confirmations"><%= details.status.confirmed ? details.confirmations : 0 %></span>
                 </div>
                 <div class="form-group">
                     <label>Block Height:</label>
@@ -63,12 +70,12 @@
             </div>
         <% } else { %>
             <div id="transaction-details" style="display: none;">
-                <h2>Transaction Details <span style="font-size: 0.7em; color: #888;">(Last Updated: <span id="last-updated"></span>)</span></h2>
+                <h2>Transaction Details <span style="font-size: 0.7em; color: #888;">(Last Updated: <span id="last-updated" style="background-color: #3498db; color: white; padding: 2px 5px; border-radius: 4px;"></span>)</span></h2>
                 <div class="form-group">
                     <label>Transaction ID:</label>
                     <span id="txid-display"></span>
                 </div>
-                <div class="form-group">
+                <div id="confirmations-group" class="form-group">
                     <label>Confirmations:</label>
                     <span id="confirmations"></span>
                 </div>
@@ -107,19 +114,55 @@
         const txidInput = document.getElementById('txid');
         const networkInput = document.getElementById('network');
         const lastUpdatedSpan = document.getElementById('last-updated');
+        const confirmationsGroup = document.getElementById('confirmations-group');
+        const confirmationsSpan = document.getElementById('confirmations');
         let refreshInterval;
 
         const updateTimestamp = () => {
             lastUpdatedSpan.textContent = new Date().toLocaleTimeString();
         };
 
+        const getConfirmations = async (txData, network) => {
+            if (!txData.status.confirmed) {
+                return 0;
+            }
+            try {
+                const networkPath = network === 'mainnet' ? '' : `${network}/`;
+                const heightUrl = `https://mempool.space/${networkPath}api/blocks/tip/height`;
+                const response = await fetch(heightUrl);
+                if (!response.ok) {
+                    return 'N/A'; 
+                }
+                const currentHeight = await response.json();
+                return currentHeight - txData.status.block_height + 1;
+            } catch (e) {
+                return 'N/A';
+            }
+        };
+        
+        const updateConfirmationStyles = (isConfirmed, confirmationCount) => {
+            if (isConfirmed) {
+                confirmationsSpan.textContent = confirmationCount;
+                confirmationsGroup.style.backgroundColor = '#2ECC71';
+                confirmationsGroup.style.color = 'white';
+                confirmationsGroup.style.padding = '10px';
+                confirmationsGroup.style.borderRadius = '5px';
+                confirmationsGroup.style.margin = '5px 0';
+            } else {
+                confirmationsSpan.textContent = '0';
+                confirmationsGroup.style.backgroundColor = '';
+                confirmationsGroup.style.color = '';
+                confirmationsGroup.style.padding = '';
+                confirmationsGroup.style.borderRadius = '';
+                confirmationsGroup.style.margin = '';
+            }
+        };
+
         const refreshDetails = async () => {
             const txid = txidInput.value.trim();
             const network = networkInput.value;
 
-            if (txid.length !== 64) {
-                return;
-            }
+            if (txid.length !== 64) return;
 
             try {
                 const networkPath = network === 'mainnet' ? '' : `${network}/`;
@@ -132,8 +175,10 @@
                 }
 
                 const data = await response.json();
+                const confirmations = await getConfirmations(data, network);
 
-                document.getElementById('confirmations').textContent = data.status.confirmed ? data.status.block_height : 0;
+                updateConfirmationStyles(data.status.confirmed, confirmations);
+
                 document.getElementById('block-height').innerHTML = data.status.block_height || '<span style="color: red;">Unconfirmed</span>';
                 document.getElementById('block-hash').innerHTML = data.status.block_hash || '<span style="color: red;">Unconfirmed</span>';
                 document.getElementById('timestamp').innerHTML = data.status.block_time ? new Date(data.status.block_time * 1000).toLocaleString() : '<span style="color: red;">Unconfirmed</span>';
@@ -152,9 +197,7 @@
             const detailsDiv = document.getElementById('transaction-details');
             const errorDiv = document.getElementById('error-message');
 
-            if (txid.length !== 64) {
-                return; 
-            }
+            if (txid.length !== 64) return;
             
             if (!isInitialLoad) {
                 const url = new URL(window.location.href);
@@ -177,9 +220,10 @@
                 }
 
                 const data = await response.json();
+                const confirmations = await getConfirmations(data, network);
 
                 document.getElementById('txid-display').textContent = data.txid;
-                document.getElementById('confirmations').textContent = data.status.confirmed ? data.status.block_height : 0;
+                updateConfirmationStyles(data.status.confirmed, confirmations);
                 document.getElementById('block-height').innerHTML = data.status.block_height || '<span style="color: red;">Unconfirmed</span>';
                 document.getElementById('block-hash').innerHTML = data.status.block_hash || '<span style="color: red;">Unconfirmed</span>';
                 document.getElementById('timestamp').innerHTML = data.status.block_time ? new Date(data.status.block_time * 1000).toLocaleString() : '<span style="color: red;">Unconfirmed</span>';
@@ -204,6 +248,7 @@
             if (txidInput.value.length === 64) {
                 fetchDetails(true);
             }
+            updateTimestamp(); // Also set initial timestamp
         });
     </script>
 </body>

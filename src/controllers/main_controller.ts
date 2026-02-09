@@ -35,7 +35,22 @@ export const getTransactionDetailsPage = async (req: Request, res: Response) => 
                 throw new Error(errorText || 'Failed to fetch transaction details.');
             }
 
-            const data = await apiResponse.json();
+            const data = await apiResponse.json() as any;
+
+            if (data.status.confirmed) {
+                try {
+                    const heightUrl = `https://mempool.space/${networkPath}api/blocks/tip/height`;
+                    const heightResponse = await fetch(heightUrl);
+                    if (heightResponse.ok) {
+                        const currentHeight = await heightResponse.json() as number;
+                        data.confirmations = currentHeight - data.status.block_height + 1;
+                    } else {
+                        data.confirmations = 'N/A';
+                    }
+                } catch (e) {
+                    data.confirmations = 'N/A';
+                }
+            }
 
             res.render('transaction', { 
                 txid,
