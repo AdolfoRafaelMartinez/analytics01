@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Details</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <a href="/">Home</a>
+    <div class="container">
+        <h1>Transaction Details</h1>
+        <div id="transaction-form">
+            <div class="form-group">
+                <label for="txid">Transaction ID:</label>
+                <input type="text" id="txid" name="txid" value="<%= txid %>" required>
+            </div>
+            <div class="form-group">
+                <label for="network">Network:</label>
+                <select id="network" name="network">
+                    <option value="mainnet" <%= network === 'mainnet' ? 'selected' : '' %>>Mainnet</option>
+                    <option value="testnet" <%= network === 'testnet' ? 'selected' : '' %>>Testnet</option>
+                    <option value="testnet4" <%= network === 'testnet4' ? 'selected' : '' %>>Testnet4</option>
+                </select>
+            </div>
+        </div>
+
+        <% if (details) { %>
+            <div id="transaction-details">
+                <h2>Transaction Details <span style="font-size: 0.7em; color: #888;">(Last Updated: <span id="last-updated"></span>)</span></h2>
+                <div class="form-group">
+                    <label>Transaction ID:</label>
+                    <span id="txid-display"><%= details.txid %></span>
+                </div>
+                <div class="form-group">
+                    <label>Confirmations:</label>
+                    <span id="confirmations"><%= details.status.confirmed ? details.status.block_height : 0 %></span>
+                </div>
+                <div class="form-group">
+                    <label>Block Height:</label>
+                    <span id="block-height"><%- details.status.block_height || '<span style="color: red;">Unconfirmed</span>' %></span>
+                </div>
+                <div class="form-group">
+                    <label>Block Hash:</label>
+                    <span id="block-hash"><%- details.status.block_hash || '<span style="color: red;">Unconfirmed</span>' %></span>
+                </div>
+                <div class="form-group">
+                    <label>Timestamp:</label>
+                    <span id="timestamp"><%- details.status.block_time ? new Date(details.status.block_time * 1000).toLocaleString() : '<span style="color: red;">Unconfirmed</span>' %></span>
+                </div>
+                <div class="form-group">
+                    <label>Fee:</label>
+                    <span id="fee"><%= (details.fee / 100000000).toFixed(8) %> BTC</span>
+                </div>
+                <div class="form-group">
+                    <label>Virtual Size:</label>
+                    <span id="vsize"><%= (details.vsize || details.weight / 4).toFixed(0) %> vB</span>
+                </div>
+                <h3>Inputs</h3>
+                <pre id="vin"><%= JSON.stringify(details.vin, null, 2) %></pre>
+                <h3>Outputs</h3>
+                <pre id="vout"><%= JSON.stringify(details.vout, null, 2) %></pre>
+            </div>
+        <% } else { %>
+            <div id="transaction-details" style="display: none;">
+                <h2>Transaction Details <span style="font-size: 0.7em; color: #888;">(Last Updated: <span id="last-updated"></span>)</span></h2>
+                <div class="form-group">
+                    <label>Transaction ID:</label>
+                    <span id="txid-display"></span>
+                </div>
+                <div class="form-group">
+                    <label>Confirmations:</label>
+                    <span id="confirmations"></span>
+                </div>
+                <div class="form-group">
+                    <label>Block Height:</label>
+                    <span id="block-height"></span>
+                </div>
+                <div class="form-group">
+                    <label>Block Hash:</label>
+                    <span id="block-hash"></span>
+                </div>
+                <div class="form-group">
+                    <label>Timestamp:</label>
+                    <span id="timestamp"></span>
+                </div>
+                <div class="form-group">
+                    <label>Fee:</label>
+                    <span id="fee"></span>
+                </div>
+                <div class="form-group">
+                    <label>Virtual Size:</label>
+                    <span id="vsize"></span>
+                </div>
+                <h3>Inputs</h3>
+                <pre id="vin"></pre>
+                <h3>Outputs</h3>
+                <pre id="vout"></pre>
+            </div>
+        <% } %>
+        
+        <div id="error-message" class="error-message" style="display: <%= error ? 'block' : 'none' %>;">
+            <%= error %>
+        </div>
+    </div>
+    <script>
+        const txidInput = document.getElementById('txid');
+        const networkInput = document.getElementById('network');
+        const lastUpdatedSpan = document.getElementById('last-updated');
+        let refreshInterval;
+
+        const updateTimestamp = () => {
+            lastUpdatedSpan.textContent = new Date().toLocaleTimeString();
+        };
+
+        const refreshDetails = async () => {
+            const txid = txidInput.value.trim();
+            const network = networkInput.value;
+
+            if (txid.length !== 64) {
+                return;
+            }
+
+            try {
+                const networkPath = network === 'mainnet' ? '' : `${network}/`;
+                const apiUrl = `https://mempool.space/${networkPath}api/tx/${txid}`;
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    console.error('Failed to refresh transaction details.');
+                    return;
+                }
+
+                const data = await response.json();
+
+                document.getElementById('confirmations').textContent = data.status.confirmed ? data.status.block_height : 0;
+                document.getElementById('block-height').innerHTML = data.status.block_height || '<span style="color: red;">Unconfirmed</span>';
+                document.getElementById('block-hash').innerHTML = data.status.block_hash || '<span style="color: red;">Unconfirmed</span>';
+                document.getElementById('timestamp').innerHTML = data.status.block_time ? new Date(data.status.block_time * 1000).toLocaleString() : '<span style="color: red;">Unconfirmed</span>';
+                document.getElementById('vsize').textContent = (data.vsize || data.weight / 4).toFixed(0) + ' vB';
+                updateTimestamp();
+
+            } catch (error) {
+                console.error('Error refreshing transaction details:', error);
+            }
+        };
+
+        const fetchDetails = async (isInitialLoad = false) => {
+            clearInterval(refreshInterval);
+            const txid = txidInput.value.trim();
+            const network = networkInput.value;
+            const detailsDiv = document.getElementById('transaction-details');
+            const errorDiv = document.getElementById('error-message');
+
+            if (txid.length !== 64) {
+                return; 
+            }
+            
+            if (!isInitialLoad) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('txid', txid);
+                url.searchParams.set('network', network);
+                window.history.replaceState({}, '', url);
+            }
+
+            detailsDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            try {
+                const networkPath = network === 'mainnet' ? '' : `${network}/`;
+                const apiUrl = `https://mempool.space/${networkPath}api/tx/${txid}`;
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Failed to fetch transaction details.');
+                }
+
+                const data = await response.json();
+
+                document.getElementById('txid-display').textContent = data.txid;
+                document.getElementById('confirmations').textContent = data.status.confirmed ? data.status.block_height : 0;
+                document.getElementById('block-height').innerHTML = data.status.block_height || '<span style="color: red;">Unconfirmed</span>';
+                document.getElementById('block-hash').innerHTML = data.status.block_hash || '<span style="color: red;">Unconfirmed</span>';
+                document.getElementById('timestamp').innerHTML = data.status.block_time ? new Date(data.status.block_time * 1000).toLocaleString() : '<span style="color: red;">Unconfirmed</span>';
+                document.getElementById('fee').textContent = (data.fee / 100000000).toFixed(8) + ' BTC';
+                document.getElementById('vsize').textContent = (data.vsize || data.weight / 4).toFixed(0) + ' vB';
+                document.getElementById('vin').textContent = JSON.stringify(data.vin, null, 2);
+                document.getElementById('vout').textContent = JSON.stringify(data.vout, null, 2);
+
+                detailsDiv.style.display = 'block';
+                updateTimestamp();
+                refreshInterval = setInterval(refreshDetails, 30000);
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+            }
+        };
+
+        txidInput.addEventListener('input', () => fetchDetails());
+        networkInput.addEventListener('change', () => fetchDetails());
+        
+        window.addEventListener('load', () => {
+            if (txidInput.value.length === 64) {
+                fetchDetails(true);
+            }
+        });
+    </script>
+</body>
+</html>

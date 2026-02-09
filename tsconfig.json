@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     "target": "es2018",
-    "module": "node16",
+    "module": "NodeNext",
     "sourceMap": true,
     "outDir": "dist",
     "rootDir": "./src",
     "strict": true,
-    "moduleResolution": "node16",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
