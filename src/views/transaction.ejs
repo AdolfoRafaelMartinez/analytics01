@@ -116,6 +116,12 @@
         </div>
     </div>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const networkSelect = document.getElementById('network');
+            if (!networkSelect.value) {
+                networkSelect.value = 'testnet4';
+            }
+        });
         const txidInput = document.getElementById('txid');
         const networkInput = document.getElementById('network');
         const lastUpdatedSpan = document.getElementById('last-updated');
