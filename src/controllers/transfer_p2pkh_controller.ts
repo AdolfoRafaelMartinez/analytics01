@@ -16,8 +16,8 @@ export const transferP2pkh = async (req: Request, res: Response) => {
 
     try {
         const network = getNetwork(network_name);
-        const amountInSatoshis = BigInt(Math.round(parseFloat(amount) * 100_000_000));
-        const feeInSatoshis = BigInt(Math.round(parseFloat(fee) * 100_000_000));
+        const amountInSatoshis = Math.round(parseFloat(amount) * 100_000_000);
+        const feeInSatoshis = Math.round(parseFloat(fee) * 100_000_000);
         const privateKeyBuffer = Buffer.from(privateKey, 'hex');
         const keyPair = ECPair.fromPrivateKey(privateKeyBuffer, { network });
 
@@ -36,7 +36,7 @@ export const transferP2pkh = async (req: Request, res: Response) => {
         }
 
         const psbt = new bitcoin.Psbt({ network });
-        let totalInput = BigInt(0);
+        let totalInput = 0;
 
         for (const utxo of utxos) {
             psbt.addInput({
@@ -46,18 +46,18 @@ export const transferP2pkh = async (req: Request, res: Response) => {
             });
             
             const valueInSatoshis = Math.round(utxo.amount * 100_000_000);
-            totalInput += BigInt(valueInSatoshis);
+            totalInput += valueInSatoshis;
         }
 
         const change = totalInput - amountInSatoshis - feeInSatoshis;
 
-        if (change < BigInt(0)) {
+        if (change < 0) {
             return res.status(400).json({ error: 'Insufficient funds for transaction' });
         }
 
         psbt.addOutput({ address: toAddress, value: amountInSatoshis });
 
-        if (change > BigInt(0)) {
+        if (change > 0) {
             psbt.addOutput({ address: fromAddress, value: change });
         }
 
