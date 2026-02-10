@@ -20,6 +20,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const childPublicKeySpan = document.getElementById('publicKey');
     const addressLink = document.getElementById('address');
 
+    // New children elements
+    const derivationPathDisplay_1 = document.getElementById('derivationPathDisplay_1');
+    const childPrivateKeyWIFSpan_1 = document.getElementById('privateKeyWIF_1');
+    const childPrivateKeyHexSpan_1 = document.getElementById('privateKeyHex_1');
+    const childPublicKeySpan_1 = document.getElementById('publicKey_1');
+    const addressLink_1 = document.getElementById('address_1');
+
+    const derivationPathDisplay_2 = document.getElementById('derivationPathDisplay_2');
+    const childPrivateKeyWIFSpan_2 = document.getElementById('privateKeyWIF_2');
+    const childPrivateKeyHexSpan_2 = document.getElementById('privateKeyHex_2');
+    const childPublicKeySpan_2 = document.getElementById('publicKey_2');
+    const addressLink_2 = document.getElementById('address_2');
+
     // Non-HD Wallet Elements
     const nonHdPrivateKeyWIFSpan = document.getElementById('nonHdPrivateKeyWIF');
     const nonHdPrivateKeyHexSpan = document.getElementById('nonHdPrivateKeyHex');
@@ -34,6 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (hdResultDiv) hdResultDiv.style.display = display;
         if (nonHdResultDiv) nonHdResultDiv.style.display = display;
     };
+
+    function incrementPath(path, increment) {
+        const parts = path.split('/');
+        const lastPart = parseInt(parts[parts.length - 1], 10);
+        parts[parts.length - 1] = lastPart + increment;
+        return parts.join('/');
+    }
 
     const deriveAndDisplayKeys = async () => {
         const mnemonic = mnemonicInput.value.trim();
@@ -55,38 +75,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('/mnemonic-to-private-key', {
+            const paths = [path, incrementPath(path, 1), incrementPath(path, 2)];
+            const requests = paths.map(p => fetch('/mnemonic-to-private-key', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mnemonic, network_name: network, path })
-            });
+                body: JSON.stringify({ mnemonic, network_name: network, path: p })
+            }));
 
-            if (!response.ok) {
+            const responses = await Promise.all(requests);
+            
+            if (responses.some(res => !res.ok)) {
                 setVisibility(false);
                 return;
             }
 
-            const data = await response.json();
+            const data = await Promise.all(responses.map(res => res.json()));
 
-            seedSpan.textContent = data.seed;
+            seedSpan.textContent = data[0].seed;
 
-            derivationPathDisplay.textContent = path;
-            masterPrivateKeySpan.textContent = data.masterPrivateKey;
-            masterPublicKeySpan.textContent = data.masterPublicKey;
-            masterAddressLink.textContent = data.masterAddress;
-            masterAddressLink.href = `${mempoolUrl}/${data.masterAddress}`;
+            derivationPathDisplay.textContent = paths[0];
+            masterPrivateKeySpan.textContent = data[0].masterPrivateKey;
+            masterPublicKeySpan.textContent = data[0].masterPublicKey;
+            masterAddressLink.textContent = data[0].masterAddress;
+            masterAddressLink.href = `${mempoolUrl}/${data[0].masterAddress}`;
             
-            childPrivateKeyWIFSpan.textContent = data.privateKey;
-            childPrivateKeyHexSpan.textContent = data.privateKeyHex;
-            childPublicKeySpan.textContent = data.publicKey;
-            addressLink.textContent = data.address;
-            addressLink.href = `${mempoolUrl}/${data.address}`;
+            childPrivateKeyWIFSpan.textContent = data[0].privateKey;
+            childPrivateKeyHexSpan.textContent = data[0].privateKeyHex;
+            childPublicKeySpan.textContent = data[0].publicKey;
+            addressLink.textContent = data[0].address;
+            addressLink.href = `${mempoolUrl}/${data[0].address}`;
 
-            nonHdPrivateKeyWIFSpan.textContent = data.nonHdPrivateKeyWIF;
-            nonHdPrivateKeyHexSpan.textContent = data.nonHdPrivateKeyHex;
-            nonHdPublicKeySpan.textContent = data.nonHdPublicKey;
-            nonHdAddressLink.textContent = data.nonHdAddress;
-            nonHdAddressLink.href = `${mempoolUrl}/${data.nonHdAddress}`;
+            derivationPathDisplay_1.textContent = paths[1];
+            childPrivateKeyWIFSpan_1.textContent = data[1].privateKey;
+            childPrivateKeyHexSpan_1.textContent = data[1].privateKeyHex;
+            childPublicKeySpan_1.textContent = data[1].publicKey;
+            addressLink_1.textContent = data[1].address;
+            addressLink_1.href = `${mempoolUrl}/${data[1].address}`;
+
+            derivationPathDisplay_2.textContent = paths[2];
+            childPrivateKeyWIFSpan_2.textContent = data[2].privateKey;
+            childPrivateKeyHexSpan_2.textContent = data[2].privateKeyHex;
+            childPublicKeySpan_2.textContent = data[2].publicKey;
+            addressLink_2.textContent = data[2].address;
+            addressLink_2.href = `${mempoolUrl}/${data[2].address}`;
+
+            nonHdPrivateKeyWIFSpan.textContent = data[0].nonHdPrivateKeyWIF;
+            nonHdPrivateKeyHexSpan.textContent = data[0].nonHdPrivateKeyHex;
+            nonHdPublicKeySpan.textContent = data[0].nonHdPublicKey;
+            nonHdAddressLink.textContent = data[0].nonHdAddress;
+            nonHdAddressLink.href = `${mempoolUrl}/${data[0].nonHdAddress}`;
 
             setVisibility(true);
 

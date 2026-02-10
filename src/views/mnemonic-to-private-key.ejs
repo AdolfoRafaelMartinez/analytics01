@@ -39,6 +39,18 @@
                     <div class="col-md-6 mb-3">
                         <label for="path" class="form-label">Derivation Path</label>
                         <input type="text" id="path" class="form-control" value="m/44'/1'/0'/0/0">
+                        <div class="mt-2 small text-muted">
+                            <strong>Legend:</strong>
+                            <ul class="list-unstyled">
+                                <li><code>m / purpose' / coin_type' / account' / change / address_index</code></li>
+                                <li><code>m</code>: Master key</li>
+                                <li><code>purpose'</code>: Always <code>44'</code> for BIP44</li>
+                                <li><code>coin_type'</code>: <code>0'</code> for Bitcoin Mainnet, <code>1'</code> for Testnet</li>
+                                <li><code>account'</code>: Account index (<code>0'</code> is the first account)</li>
+                                <li><code>change</code>: <code>0</code> for receiving addresses, <code>1</code> for change</li>
+                                <li><code>address_index</code>: Address index</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -102,18 +114,6 @@
                     </div>
                     <hr>
                     <p class="text-muted mb-2">Derived from path: <code id="derivationPathDisplay"></code></p>
-                    <div class="mt-2 small text-muted">
-                        <strong>Legend:</strong>
-                        <ul class="list-unstyled">
-                            <li><code>m / purpose' / coin_type' / account' / change / address_index</code></li>
-                            <li><code>m</code>: Master key</li>
-                            <li><code>purpose'</code>: Always <code>44'</code> for BIP44</li>
-                            <li><code>coin_type'</code>: <code>0'</code> for Bitcoin Mainnet, <code>1'</code> for Testnet</li>
-                            <li><code>account'</code>: Account index (<code>0'</code> is the first account)</li>
-                            <li><code>change</code>: <code>0</code> for receiving addresses, <code>1</code> for change</li>
-                            <li><code>address_index</code>: Address index</li>
-                        </ul>
-                    </div>
                     <div class="result-item">
                         <strong>Child Private Key (WIF):</strong>
                         <span id="privateKeyWIF" class="text-break font-monospace text-grey"></span>
@@ -129,6 +129,42 @@
                     <div class="result-item">
                         <strong>Child Address:</strong>
                         <a id="address" href="#" target="_blank" rel="noopener noreferrer" class="text-break font-monospace"></a>
+                    </div>
+                    <hr>
+                    <p class="text-muted mb-2">Derived from path: <code id="derivationPathDisplay_1"></code></p>
+                    <div class="result-item">
+                        <strong>Child Private Key (WIF):</strong>
+                        <span id="privateKeyWIF_1" class="text-break font-monospace text-grey"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Child Private Key (Hex):</strong>
+                        <span id="privateKeyHex_1" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Child Public Key (Hex):</strong>
+                        <span id="publicKey_1" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Child Address:</strong>
+                        <a id="address_1" href="#" target="_blank" rel="noopener noreferrer" class="text-break font-monospace"></a>
+                    </div>
+                    <hr>
+                    <p class="text-muted mb-2">Derived from path: <code id="derivationPathDisplay_2"></code></p>
+                    <div class="result-item">
+                        <strong>Child Private Key (WIF):</strong>
+                        <span id="privateKeyWIF_2" class="text-break font-monospace text-grey"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Child Private Key (Hex):</strong>
+                        <span id="privateKeyHex_2" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Child Public Key (Hex):</strong>
+                        <span id="publicKey_2" class="text-break font-monospace"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Child Address:</strong>
+                        <a id="address_2" href="#" target="_blank" rel="noopener noreferrer" class="text-break font-monospace"></a>
                     </div>
                 </div>
             </div>
