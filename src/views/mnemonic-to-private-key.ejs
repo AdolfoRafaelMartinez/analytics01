@@ -22,7 +22,7 @@
                 <div class="mb-3">
                     <label for="mnemonic" class="form-label">Mnemonic Phrase</label>
                     <div class="input-group">
-                        <textarea id="mnemonic" class="form-control" rows="3" placeholder="Enter your 12, 15, 18, 21, or 24-word mnemonic phrase here...">phrase tissue virus save acid finish flag raven prosper call loop build</textarea>
+                        <textarea id="mnemonic" class="form-control" rows="3" placeholder="Enter your 12, 15, 18, 21, or 24-word mnemonic phrase here..."></textarea>
                         <button id="generateMnemonicButton" class="btn btn-secondary" type="button">Generate New</button>
                     </div>
                 </div>
@@ -102,6 +102,18 @@
                     </div>
                     <hr>
                     <p class="text-muted mb-2">Derived from path: <code id="derivationPathDisplay"></code></p>
+                    <div class="mt-2 small text-muted">
+                        <strong>Legend:</strong>
+                        <ul class="list-unstyled">
+                            <li><code>m / purpose' / coin_type' / account' / change / address_index</code></li>
+                            <li><code>m</code>: Master key</li>
+                            <li><code>purpose'</code>: Always <code>44'</code> for BIP44</li>
+                            <li><code>coin_type'</code>: <code>0'</code> for Bitcoin Mainnet, <code>1'</code> for Testnet</li>
+                            <li><code>account'</code>: Account index (<code>0'</code> is the first account)</li>
+                            <li><code>change</code>: <code>0</code> for receiving addresses, <code>1</code> for change</li>
+                            <li><code>address_index</code>: Address index</li>
+                        </ul>
+                    </div>
                     <div class="result-item">
                         <strong>Child Private Key (WIF):</strong>
                         <span id="privateKeyWIF" class="text-break font-monospace text-grey"></span>
