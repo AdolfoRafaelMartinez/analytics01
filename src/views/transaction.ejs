@@ -31,9 +31,8 @@
         if (details) {
             if (details.status.confirmed) {
                 confirmationStyle = 'background-color: #2ECC71; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;';
-            } else {
-                unconfirmedStyle = 'background-color: #E74C3C; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;';
             }
+            unconfirmedStyle = 'background-color: #E74C3C; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;';
         }
         %>
 
@@ -44,19 +43,19 @@
                     <label>Transaction ID:</label>
                     <span id="txid-display"><%= details.txid %></span>
                 </div>
-                <div id="confirmations-group" class="form-group" style="<%= confirmationStyle %>">
+                <div id="confirmations-group" class="form-group" style="<%= details.status.confirmed ? confirmationStyle : unconfirmedStyle %>">
                     <label>Confirmations:</label>
                     <span id="confirmations"><%= details.status.confirmed ? details.confirmations : 0 %></span>
                 </div>
-                <div id="block-height-group" class="form-group" style="<%= unconfirmedStyle %>">
+                <div id="block-height-group" class="form-group" style="<%= details.status.confirmed ? confirmationStyle : unconfirmedStyle %>">
                     <label>Block Height:</label>
                     <span id="block-height"><%- details.status.block_height || 'Unconfirmed' %></span>
                 </div>
-                <div id="block-hash-group" class="form-group" style="<%= unconfirmedStyle %>">
+                <div id="block-hash-group" class="form-group" style="<%= details.status.confirmed ? confirmationStyle : unconfirmedStyle %>">
                     <label>Block Hash:</label>
                     <span id="block-hash"><%- details.status.block_hash || 'Unconfirmed' %></span>
                 </div>
-                <div id="timestamp-group" class="form-group" style="<%= unconfirmedStyle %>">
+                <div id="timestamp-group" class="form-group" style="<%= details.status.confirmed ? '' : unconfirmedStyle %>">
                     <label>Timestamp:</label>
                     <span id="timestamp"><%- details.status.block_time ? new Date(details.status.block_time * 1000).toLocaleString() : 'Unconfirmed' %></span>
                 </div>
@@ -157,13 +156,15 @@
             const unconfirmedStyle = 'background-color: #E74C3C; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;';
             const confirmedStyle = 'background-color: #2ECC71; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;';
             
-            confirmationsGroup.style.cssText = isConfirmed ? confirmedStyle : '';
+            const styleToApply = isConfirmed ? confirmedStyle : unconfirmedStyle;
+
+            confirmationsGroup.style.cssText = styleToApply;
+            blockHeightGroup.style.cssText = styleToApply;
+            blockHashGroup.style.cssText = styleToApply;
+            
+            timestampGroup.style.cssText = isConfirmed ? '' : unconfirmedStyle;
+
             confirmationsSpan.textContent = isConfirmed ? confirmations : '0';
-
-            [blockHeightGroup, blockHashGroup, timestampGroup].forEach(group => {
-                group.style.cssText = isConfirmed ? '' : unconfirmedStyle;
-            });
-
             document.getElementById('block-height').textContent = data.status.block_height || 'Unconfirmed';
             document.getElementById('block-hash').textContent = data.status.block_hash || 'Unconfirmed';
             document.getElementById('timestamp').textContent = data.status.block_time ? new Date(data.status.block_time * 1000).toLocaleString() : 'Unconfirmed';
