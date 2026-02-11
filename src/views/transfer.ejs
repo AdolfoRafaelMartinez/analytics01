@@ -31,6 +31,14 @@
             <input type="number" id="amount" placeholder="Enter the amount to send">
         </div>
 
+        <div class="input-group">
+            <label for="service">Service:</label>
+            <select id="service">
+                <option value="quicknode">QuickNode</option>
+                <option value="alchemy">Alchemy</option>
+            </select>
+        </div>
+
         <button id="sendTransactionButton" class="btn-submit">Send Transaction</button>
 
         <div id="transactionResult" class="result-container" style="display: none;">

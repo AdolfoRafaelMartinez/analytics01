@@ -2,13 +2,14 @@ import { Request, Response } from 'express';
 import * as bitcoin from 'bitcoinjs-lib';
 import { ECPairFactory } from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
-import { getUtxos, broadcastTransaction } from '../services/quicknode_service.js';
+import { getUtxos as getQuickNodeUtxos, broadcastTransaction as sendQuickNodeTransaction } from '../services/quicknode_service.js';
+import { getUtxos as getAlchemyUtxos, broadcastTransaction as sendAlchemyTransaction } from '../services/alchemy_service.js';
 import { Utxo } from '../types/quicknode.js';
 
 const ECPair = ECPairFactory(ecc);
 
 export const transferBtc = async (req: Request, res: Response) => {
-    const { fromAddress, toAddress, amount, privateKey } = req.body;
+    const { fromAddress, toAddress, amount, privateKey, service } = req.body;
 
     if (!fromAddress || !toAddress || !amount || !privateKey) {
         return res.status(400).json({ error: 'Missing required parameters' });
@@ -18,8 +19,16 @@ export const transferBtc = async (req: Request, res: Response) => {
         const network = bitcoin.networks.testnet;
         const keyPair = ECPair.fromPrivateKey(Buffer.from(privateKey, 'hex'), { network });
 
-        // 1. Get UTXOs using the service
-        const utxos: Utxo[] = await getUtxos(fromAddress);
+        let utxos: Utxo[];
+        let broadcastTransaction;
+
+        if (service === 'alchemy') {
+            utxos = await getAlchemyUtxos(fromAddress);
+            broadcastTransaction = sendAlchemyTransaction;
+        } else {
+            utxos = await getQuickNodeUtxos(fromAddress);
+            broadcastTransaction = sendQuickNodeTransaction;
+        }
 
         if (utxos.length === 0) {
             return res.status(400).json({ error: 'No unspent transaction outputs found' });
@@ -71,7 +80,7 @@ export const transferBtc = async (req: Request, res: Response) => {
         const txHex = psbt.extractTransaction().toHex();
 
         // 2. Broadcast the transaction using the service
-        const txid = await broadcastTransaction(txHex);
+        const txid = await broadcastTransaction(txHex, 'testnet');
 
         res.json({ txid });
 

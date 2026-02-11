@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fromAddressInput = document.getElementById('fromAddress');
     const toAddressInput = document.getElementById('toAddress');
     const amountInput = document.getElementById('amount');
+    const serviceSelect = document.getElementById('service');
     const sendTransactionButton = document.getElementById('sendTransactionButton');
     const transactionResultDiv = document.getElementById('transactionResult');
     const transactionHashSpan = document.getElementById('transactionHash');
@@ -59,9 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const toAddress = toAddressInput.value.trim();
         const amount = parseFloat(amountInput.value.trim());
         const privateKey = privateKeyInput.value.trim();
+        const service = serviceSelect.value;
 
         if (!fromAddress || fromAddress.startsWith('Error') || fromAddress.startsWith('Invalid') || !toAddress || isNaN(amount) || !privateKey) {
-            alert('Please ensure you have a valid private key and all other fields are correctly filled out.');
+            alert('Please ensure you have a valid private key and and all other fields are correctly filled out.');
             return;
         }
 
@@ -75,7 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     fromAddress,
                     toAddress,
                     amount,
-                    privateKey
+                    privateKey,
+                    service
                 })
             });
 

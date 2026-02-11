@@ -1,40 +1,37 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('balance-form');
-    const resultContainer = document.getElementById('result-container');
-    const balanceResult = document.getElementById('balance-result');
-    const errorContainer = document.getElementById('error-container');
-    const errorMessage = document.getElementById('error-message');
+document.addEventListener('DOMContentLoaded', function () {
+    const checkBalanceBtn = document.getElementById('checkBalanceBtn');
+    const btcAddressInput = document.getElementById('btcAddress');
+    const balanceResultDiv = document.getElementById('balanceResult');
+    const balanceSpan = document.getElementById('balance');
+    const serviceSelect = document.getElementById('service');
 
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
+    checkBalanceBtn.addEventListener('click', function () {
+        const btcAddress = btcAddressInput.value.trim();
+        const service = serviceSelect.value;
 
-        const address = document.getElementById('address').value;
-        const network = document.getElementById('network').value;
-
-        try {
-            const response = await fetch('/balance', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ address, network })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                balanceResult.textContent = `${data.balance} BTC`;
-                resultContainer.style.display = 'block';
-                errorContainer.style.display = 'none';
-            } else {
-                const errorData = await response.json();
-                errorMessage.textContent = errorData.error;
-                errorContainer.style.display = 'block';
-                resultContainer.style.display = 'none';
-            }
-        } catch (error) {
-            errorMessage.textContent = 'An unexpected error occurred.';
-            errorContainer.style.display = 'block';
-            resultContainer.style.display = 'none';
+        if (btcAddress === '') {
+            alert('Please enter a Bitcoin address.');
+            return;
         }
+
+        fetch('/api/balance', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ address: btcAddress, service: service }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            balanceSpan.textContent = data.balance;
+            balanceResultDiv.style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error checking balance:', error);
+            alert('Error checking balance: ' + error.message);
+        });
     });
 });
