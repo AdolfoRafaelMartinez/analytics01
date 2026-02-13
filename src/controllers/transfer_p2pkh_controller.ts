@@ -9,7 +9,7 @@ import { Utxo } from '../types/quicknode.js';
 
 const ECPair = ECPairFactory(ecc);
 
-export const createAndSendTransaction = async (req: Request, res: Response) => {
+export const qn_createAndSendTransaction = async (req: Request, res: Response) => {
     const { toAddress, amount, fee, privateKey, network_name, service } = req.body;
 
     if (!toAddress || !amount || !fee || !privateKey || !network_name || !service) {
@@ -34,9 +34,9 @@ export const createAndSendTransaction = async (req: Request, res: Response) => {
         let broadcastTransaction: (txHex: string) => Promise<string>;
 
         if (service === 'quicknode') {
-            utxos = await quicknodeService.getUtxos(fromAddress);
-            getTxHex = quicknodeService.getTxHex;
-            broadcastTransaction = quicknodeService.broadcastTransaction;
+            utxos = await quicknodeService.qn_getUtxos(fromAddress);
+            getTxHex = quicknodeService.qn_getTxHex;
+            broadcastTransaction = quicknodeService.qn_broadcastTransaction;
         } else if (service === 'blockdaemon') {
             utxos = await blockdaemonService.getUtxos(fromAddress, network_name);
             getTxHex = (txid: string) => blockdaemonService.getTxHex(txid, network_name);

@@ -21,7 +21,7 @@ interface BlockbookResponse {
     error: any;
 }
 
-export const getUtxos = async (address: string): Promise<Utxo[]> => {
+export const qn_getUtxos = async (address: string): Promise<Utxo[]> => {
     const response = await axios.post<BlockbookResponse>(QN_BTC_URL, {
         method: 'bb_getUTXOs',
         params: [address, { confirmed: true }],
@@ -40,7 +40,7 @@ export const getUtxos = async (address: string): Promise<Utxo[]> => {
     }
 
     const utxos = await Promise.all(utxosFromBlockbook.map(async (utxo) => {
-        const txHex = await getTxHex(utxo.txid);
+        const txHex = await qn_getTxHex(utxo.txid);
         return {
             txid: utxo.txid,
             vout: utxo.vout,
@@ -52,7 +52,7 @@ export const getUtxos = async (address: string): Promise<Utxo[]> => {
     return utxos;
 };
 
-export const broadcastTransaction = async (txHex: string): Promise<string> => {
+export const qn_broadcastTransaction = async (txHex: string): Promise<string> => {
     const response = await axios.post<SendRawTransactionResponse>(QN_BTC_URL, {
         method: 'sendrawtransaction',
         params: [txHex],
@@ -71,7 +71,7 @@ export const broadcastTransaction = async (txHex: string): Promise<string> => {
     return response.data.result;
 };
 
-export const getTxHex = async (txid: string): Promise<string> => {
+export const qn_getTxHex = async (txid: string): Promise<string> => {
     const response = await axios.post<GetRawTransactionResponse>(QN_BTC_URL, {
         method: 'getrawtransaction',
         params: [txid],
@@ -88,7 +88,7 @@ export const getTxHex = async (txid: string): Promise<string> => {
 };
 
 
-export const getBalance = async (address: string, network: string): Promise<number> => {
+export const qn_getBalance = async (address: string, network: string): Promise<number> => {
     const apiKey = process.env.QUICKNODE_API_KEY;
     if (!apiKey) {
         throw new Error('QUICKNODE_API_KEY is not set. Please add it to your .env file.');
@@ -125,7 +125,7 @@ export const getBalance = async (address: string, network: string): Promise<numb
     return balanceInBtc;
 };
 
-export const getTransactionStatus = async (txid: string, network: string): Promise<{ confirmations: number; fee: number; eta: string; }> => {
+export const qn_getTransactionStatus = async (txid: string, network: string): Promise<{ confirmations: number; fee: number; eta: string; }> => {
     const apiKey = process.env.QUICKNODE_API_KEY;
     if (!apiKey) {
         throw new Error('QUICKNODE_API_KEY is not set.');

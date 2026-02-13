@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createAndSendTransaction } from '../controllers/transfer_p2pkh_controller.js';
+import { qn_createAndSendTransaction } from '../controllers/transfer_p2pkh_controller.js';
 import { getAddressFromPrivateKey } from '../controllers/address_controller.js';
 
 const router = Router();
@@ -13,6 +13,6 @@ router.get('/transfer-p2pkh', (req, res) => {
 router.post('/api/get-address-from-private-key', getAddressFromPrivateKey);
 
 // API route for the transaction
-router.post('/api/transfer-p2pkh', createAndSendTransaction);
+router.post('/api/transfer-p2pkh', qn_createAndSendTransaction);
 
 export default router;

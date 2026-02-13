@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getBalance as getQuickNodeBalance } from '../services/quicknode_service.js';
+import { qn_getBalance as getQuickNodeBalance } from '../services/quicknode_service.js';
 
 export const getBalancePage = (req: Request, res: Response) => {
     res.render('balance');

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import * as bitcoin from 'bitcoinjs-lib';
 import { ECPairFactory } from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
-import { getUtxos as getQuickNodeUtxos, broadcastTransaction as sendQuickNodeTransaction } from '../services/quicknode_service.js';
+import { qn_getUtxos as getQuickNodeUtxos, qn_broadcastTransaction as sendQuickNodeTransaction } from '../services/quicknode_service.js';
 import { Utxo } from '../types/quicknode.js';
 
 const ECPair = ECPairFactory(ecc);

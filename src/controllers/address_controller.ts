@@ -4,7 +4,7 @@ import * as bip39 from 'bip39';
 import * as ecc from 'tiny-secp256k1';
 import { ECPairFactory } from 'ecpair';
 import { BIP32Factory } from 'bip32';
-import { getTransactionStatus as getQuickNodeTransactionStatus } from '../services/quicknode_service.js';
+import { qn_getTransactionStatus as getQuickNodeTransactionStatus } from '../services/quicknode_service.js';
 import { getNetwork } from '../networks.js';
 
 // Initialize the libraries

@@ -18,7 +18,7 @@ const blockdaemonApi = axios.create({
 const getRpcUrl = (network: string): string => {
     if (network === 'mainnet') {
         return 'https://svc.blockdaemon.com/bitcoin/mainnet/native';
-    } else if (network === 'testnet') {
+    } else if (network === 'testnet4') {
         // As per the previous request, using testnet4. Adjust if needed.
         return 'https://svc.blockdaemon.com/bitcoin/testnet4/native';
     } else {
@@ -92,7 +92,7 @@ export const getUtxos = async (address: string, network: string): Promise<Utxo[]
     const url = getRpcUrl(network);
     const response = await blockdaemonApi.post<JsonRpcResponse<BlockdaemonUtxoDto[]>>(url, {
         jsonrpc: '2.0',
-        id: 'blockdaemon-getaddressutxos',
+        id: 'blockdaemon-getaddressutxos', // method not exist
         method: 'getaddressutxos',
         params: [{ "addresses": [address] }]
     });
