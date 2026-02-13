@@ -52,7 +52,7 @@ interface VerboseTransaction {
 
 // --- Service Functions ---
 
-export const getBlockchainHeight = async (network: string): Promise<number> => {
+export const bd_getBlockchainHeight = async (network: string): Promise<number> => {
     const url = getRpcUrl(network);
     const response = await blockdaemonApi.post<JsonRpcResponse<number>>(url, {
         jsonrpc: '2.0',
@@ -70,7 +70,7 @@ export const getBlockchainHeight = async (network: string): Promise<number> => {
     return response.data.result;
 };
 
-export const getTxHex = async (txid: string, network: string): Promise<string> => {
+export const bd_getTxHex = async (txid: string, network: string): Promise<string> => {
     const url = getRpcUrl(network);
     const response = await blockdaemonApi.post<JsonRpcResponse<string>>(url, {
         jsonrpc: '2.0',
@@ -88,7 +88,7 @@ export const getTxHex = async (txid: string, network: string): Promise<string> =
     return response.data.result;
 };
 
-export const getUtxos = async (address: string, network: string): Promise<Utxo[]> => {
+export const bd_getUtxos = async (address: string, network: string): Promise<Utxo[]> => {
     const url = getRpcUrl(network);
     const response = await blockdaemonApi.post<JsonRpcResponse<BlockdaemonUtxoDto[]>>(url, {
         jsonrpc: '2.0',
@@ -109,7 +109,7 @@ export const getUtxos = async (address: string, network: string): Promise<Utxo[]
     // The getaddressutxos method might not return the full transaction hex needed for the Utxo type.
     // We need to fetch it for each UTXO.
     const utxos = await Promise.all(result.map(async (utxoDto) => {
-        const txHex = await getTxHex(utxoDto.txid, network);
+        const txHex = await bd_getTxHex(utxoDto.txid, network);
         return {
             txid: utxoDto.txid,
             vout: utxoDto.vout,
@@ -121,13 +121,13 @@ export const getUtxos = async (address: string, network: string): Promise<Utxo[]
     return utxos;
 };
 
-export const getBalance = async (address: string, network: string): Promise<number> => {
-    const utxos = await getUtxos(address, network);
+export const bd_getBalance = async (address: string, network: string): Promise<number> => {
+    const utxos = await bd_getUtxos(address, network);
     const totalBalance = utxos.reduce((acc, utxo) => acc + utxo.amount, 0);
     return totalBalance;
 };
 
-export const getTransactionStatus = async (txid: string, network: string): Promise<{ confirmations: number; fee: number; eta: string; }> => {
+export const bd_getTransactionStatus = async (txid: string, network: string): Promise<{ confirmations: number; fee: number; eta: string; }> => {
     const url = getRpcUrl(network);
     const response = await blockdaemonApi.post<JsonRpcResponse<VerboseTransaction>>(url, {
         jsonrpc: '2.0',
@@ -158,7 +158,7 @@ export const getTransactionStatus = async (txid: string, network: string): Promi
     throw new Error('Transaction not found.');
 };
 
-export const broadcastTransaction = async (txHex: string, network: string): Promise<string> => {
+export const bd_broadcastTransaction = async (txHex: string, network: string): Promise<string> => {
     const url = getRpcUrl(network);
     const response = await blockdaemonApi.post<JsonRpcResponse<string>>(url, {
         jsonrpc: '2.0',

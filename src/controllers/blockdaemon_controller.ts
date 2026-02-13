@@ -4,7 +4,7 @@ import * as blockdaemonService from '../services/blockdaemon_service.js';
 export const getBlockchainHeight = async (req: Request, res: Response) => {
     try {
         const network = req.query.network as string || 'mainnet'; // Default to mainnet
-        const height = await blockdaemonService.getBlockchainHeight(network);
+        const height = await blockdaemonService.bd_getBlockchainHeight(network);
         res.render('blockdaemon-blockchain', { height, network, error: null });
     } catch (error) {        
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';

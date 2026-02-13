@@ -38,9 +38,9 @@ export const qn_createAndSendTransaction = async (req: Request, res: Response) =
             getTxHex = quicknodeService.qn_getTxHex;
             broadcastTransaction = quicknodeService.qn_broadcastTransaction;
         } else if (service === 'blockdaemon') {
-            utxos = await blockdaemonService.getUtxos(fromAddress, network_name);
-            getTxHex = (txid: string) => blockdaemonService.getTxHex(txid, network_name);
-            broadcastTransaction = (txHex: string) => blockdaemonService.broadcastTransaction(txHex, network_name);
+            utxos = await blockdaemonService.bd_getUtxos(fromAddress, network_name);
+            getTxHex = (txid: string) => blockdaemonService.bd_getTxHex(txid, network_name);
+            broadcastTransaction = (txHex: string) => blockdaemonService.bd_broadcastTransaction(txHex, network_name);
         } else {
              return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('Invalid service provider')}`);
         }
