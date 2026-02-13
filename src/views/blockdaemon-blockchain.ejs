@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockdaemon Blockchain Height</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Blockdaemon Blockchain Height</h1>
+        
+        <form action="/blockdaemon/height" method="GET" class="network-form">
+            <label for="network">Select Network:</label>
+            <select id="network" name="network">
+                <option value="mainnet" <%= network === 'mainnet' ? 'selected' : '' %>>Mainnet</option>
+                <option value="testnet" <%= network === 'testnet' ? 'selected' : '' %>>Testnet</option>
+            </select>
+            <button type="submit">Get Height</button>
+        </form>
+
+        <% if (height) { %>
+            <h2><%= network.charAt(0).toUpperCase() + network.slice(1) %> Height</h2>
+            <p>The current blockchain height is: <strong><%= height %></strong></p>
+        <% } else if (error) { %>
+            <p class="error-message"><%= error %></p>
+        <% } %>
+
+        <a href="/" class="back-link">Back to Home</a>
+    </div>
+</body>
+</html>

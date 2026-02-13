@@ -2,17 +2,18 @@ import { Request, Response } from 'express';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 import { ECPairFactory } from 'ecpair';
-import { getUtxos as getQuickNodeUtxos, broadcastTransaction as sendQuickNodeTransaction, getTxHex as getQuickNodeTxHex } from '../services/quicknode_service.js';
-import { getUtxos as getAlchemyUtxos, broadcastTransaction as sendAlchemyTransaction, getTxHex as getAlchemyTxHex } from '../services/alchemy_service.js';
+import * as quicknodeService from '../services/quicknode_service.js';
+import * as blockdaemonService from '../services/blockdaemon_service.js';
 import { getNetwork } from '../networks.js';
+import { Utxo } from '../types/quicknode.js';
 
 const ECPair = ECPairFactory(ecc);
 
-export const transferP2pkh = async (req: Request, res: Response) => {
+export const createAndSendTransaction = async (req: Request, res: Response) => {
     const { toAddress, amount, fee, privateKey, network_name, service } = req.body;
 
-    if (!toAddress || !amount || !fee || !privateKey || !network_name) {
-        return res.status(400).json({ error: 'Missing required fields' });
+    if (!toAddress || !amount || !fee || !privateKey || !network_name || !service) {
+        return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('Missing required fields')}`);
     }
 
     try {
@@ -25,44 +26,47 @@ export const transferP2pkh = async (req: Request, res: Response) => {
         const { address: fromAddress } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network });
 
         if (!fromAddress) {
-            return res.status(400).json({ error: 'Could not derive address from the provided private key.' });
+             return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('Could not derive address from the provided private key.')}`);
         }
 
-        let utxos;
-        let getTxHex;
-        let sendTransaction;
+        let utxos: Utxo[];
+        let getTxHex: (txid: string) => Promise<string>;
+        let broadcastTransaction: (txHex: string) => Promise<string>;
 
-        if (service === 'alchemy') {
-            utxos = await getAlchemyUtxos(fromAddress);
-            getTxHex = getAlchemyTxHex;
-            sendTransaction = sendAlchemyTransaction;
+        if (service === 'quicknode') {
+            utxos = await quicknodeService.getUtxos(fromAddress);
+            getTxHex = quicknodeService.getTxHex;
+            broadcastTransaction = quicknodeService.broadcastTransaction;
+        } else if (service === 'blockdaemon') {
+            utxos = await blockdaemonService.getUtxos(fromAddress, network_name);
+            getTxHex = (txid: string) => blockdaemonService.getTxHex(txid, network_name);
+            broadcastTransaction = (txHex: string) => blockdaemonService.broadcastTransaction(txHex, network_name);
         } else {
-            utxos = await getQuickNodeUtxos(fromAddress);
-            getTxHex = getQuickNodeTxHex;
-            sendTransaction = sendQuickNodeTransaction;
+             return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('Invalid service provider')}`);
         }
 
         if (utxos.length === 0) {
-            return res.status(400).json({ error: 'No spendable outputs found' });
+            return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('No spendable outputs found')}`);
         }
 
         const psbt = new bitcoin.Psbt({ network });
         let totalInput = 0;
 
         for (const utxo of utxos) {
-            const txHex = await getTxHex(utxo.txid);
             psbt.addInput({
                 hash: utxo.txid,
                 index: utxo.vout,
-                nonWitnessUtxo: Buffer.from(txHex, 'hex'),
+                nonWitnessUtxo: Buffer.from(await getTxHex(utxo.txid), 'hex'),
             });
-            totalInput += utxo.amount * 100_000_000;
+            
+            const valueInSatoshis = Math.round(utxo.amount * 100_000_000);
+            totalInput += valueInSatoshis;
         }
 
         const change = totalInput - amountInSatoshis - feeInSatoshis;
 
         if (change < 0) {
-            return res.status(400).json({ error: 'Insufficient funds for transaction' });
+            return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('Insufficient funds for transaction')}`);
         }
 
         psbt.addOutput({ address: toAddress, value: amountInSatoshis });
@@ -78,10 +82,10 @@ export const transferP2pkh = async (req: Request, res: Response) => {
         psbt.finalizeAllInputs();
 
         const txHex = psbt.extractTransaction().toHex();
-        const txid = await sendTransaction(txHex, network_name);
+        const txid = await broadcastTransaction(txHex);
 
-        res.json({ txid });
+        res.redirect(`/transaction?txid=${txid}&network=${network_name}`);
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        res.redirect(`/transfer-p2pkh?error=${encodeURIComponent(error.message)}`);
     }
 };
