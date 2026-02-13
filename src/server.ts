@@ -7,6 +7,7 @@ import p2pkhRoutes from './routes/p2pkh_routes.js';
 import balanceRoutes from './routes/balance_routes.js';
 import demoRoutes from './routes/demo_routes.js';
 import transactionRoutes from './routes/transaction_routes.js';
+import blockdaemonRoutes from './routes/blockdaemon_routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -30,6 +31,7 @@ app.use('/', p2pkhRoutes);
 app.use('/', balanceRoutes);
 app.use('/', demoRoutes);
 app.use('/', transactionRoutes);
+app.use('/blockdaemon', blockdaemonRoutes);
 
 app.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);
