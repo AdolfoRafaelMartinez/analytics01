@@ -5,7 +5,6 @@ import * as ecc from 'tiny-secp256k1';
 import { ECPairFactory } from 'ecpair';
 import { BIP32Factory } from 'bip32';
 import { getTransactionStatus as getQuickNodeTransactionStatus } from '../services/quicknode_service.js';
-import { getTransactionStatus as getAlchemyTransactionStatus } from '../services/alchemy_service.js';
 import { getNetwork } from '../networks.js';
 
 // Initialize the libraries
@@ -121,7 +120,7 @@ export const convertWifToHex = (req: Request, res: Response) => {
 };
 
 export const getConfirmations = async (req: Request, res: Response) => {
-    const { txid, network, service } = req.body;
+    const { txid, network } = req.body;
     let confirmations: number | null = null;
     let fee: number | null = null;
     let eta: string | null = null;
@@ -129,12 +128,7 @@ export const getConfirmations = async (req: Request, res: Response) => {
 
     if (txid && network) {
         try {
-            let status;
-            if (service === 'alchemy') {
-                status = await getAlchemyTransactionStatus(txid, network);
-            } else {
-                status = await getQuickNodeTransactionStatus(txid, network);
-            }
+            const status = await getQuickNodeTransactionStatus(txid, network);
             confirmations = status.confirmations;
             fee = status.fee;
             eta = status.eta;
