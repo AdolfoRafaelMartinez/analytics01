@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as blockdaemonService from '../services/blockdaemon_service.js';
 
-export const getBlockchainHeight = async (req: Request, res: Response) => {
+export const bd_getBlockchainHeight = async (req: Request, res: Response) => {
     try {
         const network = req.query.network as string || 'mainnet'; // Default to mainnet
         const height = await blockdaemonService.bd_getBlockchainHeight(network);
@@ -11,3 +11,4 @@ export const getBlockchainHeight = async (req: Request, res: Response) => {
         res.render('blockdaemon-blockchain', { height: null, network: req.query.network, error: errorMessage });
     }
 };
+3
