@@ -2,15 +2,17 @@ import { Request, Response } from 'express';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 import { ECPairFactory } from 'ecpair';
-import { getUtxos, broadcastTransaction } from '../services/quicknode_service.js';
+import * as quicknodeService from '../services/quicknode_service.js';
+import * as blockdaemonService from '../services/blockdaemon_service.js';
 import { getNetwork } from '../networks.js';
+import { Utxo } from '../types/quicknode.js';
 
 const ECPair = ECPairFactory(ecc);
 
-export const transferP2pkh = async (req: Request, res: Response) => {
-    const { toAddress, amount, fee, privateKey, network_name } = req.body;
+export const createAndSendTransaction = async (req: Request, res: Response) => {
+    const { toAddress, amount, fee, privateKey, network_name, service } = req.body;
 
-    if (!toAddress || !amount || !fee || !privateKey || !network_name) {
+    if (!toAddress || !amount || !fee || !privateKey || !network_name || !service) {
         return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('Missing required fields')}`);
     }
 
@@ -24,10 +26,24 @@ export const transferP2pkh = async (req: Request, res: Response) => {
         const { address: fromAddress } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network });
 
         if (!fromAddress) {
-            return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('Could not derive address from the provided private key.')}`);
+             return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('Could not derive address from the provided private key.')}`);
         }
 
-        const utxos = await getUtxos(fromAddress);
+        let utxos: Utxo[];
+        let getTxHex: (txid: string) => Promise<string>;
+        let broadcastTransaction: (txHex: string) => Promise<string>;
+
+        if (service === 'quicknode') {
+            utxos = await quicknodeService.getUtxos(fromAddress);
+            getTxHex = quicknodeService.getTxHex;
+            broadcastTransaction = quicknodeService.broadcastTransaction;
+        } else if (service === 'blockdaemon') {
+            utxos = await blockdaemonService.getUtxos(fromAddress, network_name);
+            getTxHex = (txid: string) => blockdaemonService.getTxHex(txid, network_name);
+            broadcastTransaction = (txHex: string) => blockdaemonService.broadcastTransaction(txHex, network_name);
+        } else {
+             return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('Invalid service provider')}`);
+        }
 
         if (utxos.length === 0) {
             return res.redirect(`/transfer-p2pkh?error=${encodeURIComponent('No spendable outputs found')}`);
@@ -40,7 +56,7 @@ export const transferP2pkh = async (req: Request, res: Response) => {
             psbt.addInput({
                 hash: utxo.txid,
                 index: utxo.vout,
-                nonWitnessUtxo: Buffer.from(utxo.hex, 'hex'),
+                nonWitnessUtxo: Buffer.from(await getTxHex(utxo.txid), 'hex'),
             });
             
             const valueInSatoshis = Math.round(utxo.amount * 100_000_000);

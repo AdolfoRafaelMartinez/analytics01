@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const privateKeyInput = document.getElementById('privateKey');
     const fromAddressInput = document.getElementById('fromAddress');
     const networkSelect = document.getElementById('network');
+    const serviceSelect = document.getElementById('service');
     const transactionForm = document.getElementById('transactionForm');
     const transactionResult = document.getElementById('transactionResult');
     const transactionLink = document.getElementById('transactionLink');
@@ -43,12 +44,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const fee = document.getElementById('fee').value;
         const privateKey = privateKeyInput.value;
         const networkName = networkSelect.value;
+        const service = serviceSelect.value;
 
         try {
             const response = await fetch('/api/transfer-p2pkh', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ toAddress, amount, fee, privateKey, network_name: networkName })
+                body: JSON.stringify({ toAddress, amount, fee, privateKey, network_name: networkName, service })
             });
 
             // The backend now sends a redirect on both success and error.
