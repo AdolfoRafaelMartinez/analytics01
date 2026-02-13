@@ -8,13 +8,25 @@
 </head>
 <body>
     <div class="container">
-        <h1>Blockdaemon <%= network.charAt(0).toUpperCase() + network.slice(1) %> Blockchain Height</h1>
+        <h1>Blockdaemon Blockchain Height</h1>
+        
+        <form action="/blockdaemon/height" method="GET" class="network-form">
+            <label for="network">Select Network:</label>
+            <select id="network" name="network">
+                <option value="mainnet" <%= network === 'mainnet' ? 'selected' : '' %>>Mainnet</option>
+                <option value="testnet" <%= network === 'testnet' ? 'selected' : '' %>>Testnet</option>
+            </select>
+            <button type="submit">Get Height</button>
+        </form>
+
         <% if (height) { %>
-            <p>The current blockchain height is: <%= height %></p>
+            <h2><%= network.charAt(0).toUpperCase() + network.slice(1) %> Height</h2>
+            <p>The current blockchain height is: <strong><%= height %></strong></p>
         <% } else if (error) { %>
-            <p style="color: red;"><%= error %></p>
+            <p class="error-message"><%= error %></p>
         <% } %>
-        <a href="/">Back to Home</a>
+
+        <a href="/" class="back-link">Back to Home</a>
     </div>
 </body>
 </html>
